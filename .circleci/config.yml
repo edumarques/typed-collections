@@ -18,4 +18,6 @@ jobs:
                     paths:
                         - ./vendor
             -   run: ./vendor/bin/phpunit
-            -   uses: codecov/codecov-action@v3
+            -   run: curl -Os https://uploader.codecov.io/latest/linux/codecov
+            -   run: chmod +x
+            -   run: codecov ./codecov
