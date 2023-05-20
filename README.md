@@ -1,4 +1,4 @@
-Type Collections
+Typed Collections
 ================
 [![edumarques](https://circleci.com/gh/edumarques/typed-collections.svg?style=svg)](https://app.circleci.com/pipelines/github/edumarques)
 
