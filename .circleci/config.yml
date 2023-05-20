@@ -19,5 +19,5 @@ jobs:
                         - ./vendor
             -   run: ./vendor/bin/phpunit
             -   run: curl -Os https://uploader.codecov.io/latest/linux/codecov
-            -   run: chmod +x
+            -   run: sudo chmod +x
             -   run: codecov ./codecov
