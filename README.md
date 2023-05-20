@@ -30,4 +30,4 @@ Dictionaries extend Collections' functionalities. The main difference is that th
 
 ## Support for abstract classes and interfaces
 
-The collection will check inheritance, so if you require a base class, derived classes can be added safely.
+Collections and Dictionaries will check inheritance, so if you require a base class, derived classes can be added safely.
