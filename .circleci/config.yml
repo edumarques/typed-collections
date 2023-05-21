@@ -7,7 +7,6 @@ jobs:
         steps:
             - checkout
             -   run: sudo apt update
-            -   run: sudo docker-php-ext-install zip
             -   restore_cache:
                     keys:
                         - v1-dependencies-{{ checksum "composer.lock" }}
