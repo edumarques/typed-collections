@@ -5,6 +5,6 @@ services:
         build:
             context: .
         working_dir: /app
-        entrypoint: sh ./docker/php/entrypoint.sh
+        entrypoint: sh ./docker/entrypoint.sh
         volumes:
             - .:/app:rw
