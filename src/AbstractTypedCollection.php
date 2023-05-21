@@ -11,7 +11,7 @@ abstract class AbstractTypedCollection implements TypedCollectionInterface
     use TypeValidatorTrait;
 
     /**
-     * @var mixed[]
+     * @var array<int, mixed>
      */
     protected $items = [];
 
@@ -21,7 +21,7 @@ abstract class AbstractTypedCollection implements TypedCollectionInterface
     protected $type;
 
     /**
-     * @param mixed[]|null $items
+     * @param array<int, mixed>|null $items
      *
      * @throws InvalidArgumentException
      */
@@ -33,6 +33,7 @@ abstract class AbstractTypedCollection implements TypedCollectionInterface
             return;
         }
 
+        $items = array_values($items);
         $this->validateItems($items);
 
         $this->items = $items;
@@ -46,6 +47,9 @@ abstract class AbstractTypedCollection implements TypedCollectionInterface
         return new static($type, $items);
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getType(): string
     {
         return $this->type;
@@ -72,9 +76,9 @@ abstract class AbstractTypedCollection implements TypedCollectionInterface
     /**
      * @inheritDoc
      */
-    public function slice(int $offset, ?int $length = null, bool $preserveKeys = false): TypedCollectionInterface
+    public function slice(int $offset, ?int $length = null): TypedCollectionInterface
     {
-        $items = array_slice($this->items, $offset, $length, $preserveKeys);
+        $items = array_slice($this->items, $offset, $length);
 
         return new static($this->type, $items);
     }
@@ -125,6 +129,8 @@ abstract class AbstractTypedCollection implements TypedCollectionInterface
 
     /**
      * @inheritDoc
+     *
+     * @codeCoverageIgnore
      */
     public function toArray(): array
     {
@@ -133,6 +139,8 @@ abstract class AbstractTypedCollection implements TypedCollectionInterface
 
     /**
      * @inheritDoc
+     *
+     * @codeCoverageIgnore
      */
     public function getIterator(): \ArrayIterator
     {

@@ -4,8 +4,19 @@ declare(strict_types=1);
 
 namespace EduardoMarques\TypedCollections;
 
-class TypedCollection extends AbstractTypedCollection implements TypedCollectionInterface
+class TypedCollection extends AbstractTypedCollection implements
+    TypedCollectionInterface,
+    TypedCollectionMutableInterface
 {
+    /**
+     * @inheritDoc
+     * @codeCoverageIgnore
+     */
+    public static function createFromImmutable(TypedCollectionImmutable $collection): TypedCollectionMutableInterface
+    {
+        return new static($collection->getType(), $collection->toArray());
+    }
+
     /**
      * @inheritDoc
      */
@@ -49,9 +60,9 @@ class TypedCollection extends AbstractTypedCollection implements TypedCollection
     /**
      * @inheritdoc
      */
-    public function reverse(bool $preserveKeys = false): TypedCollectionInterface
+    public function reverse(): TypedCollectionInterface
     {
-        $this->items = array_reverse($this->items, $preserveKeys);
+        $this->items = array_reverse($this->items);
 
         return $this;
     }

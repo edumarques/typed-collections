@@ -94,17 +94,19 @@ trait TypeValidatorTrait
      */
     protected function validateItem($item): void
     {
-        $type = gettype($item);
+        $itemType = gettype($item);
+        $requiredTypeIsCallable = $this->type === 'callable';
+        $itemIsObject = $itemType === 'object';
 
-        if ($this->type === 'callable' && !is_callable($item)) {
+        if ($requiredTypeIsCallable && !is_callable($item)) {
             throw new InvalidArgumentException('Item must be callable');
         }
 
-        if ($type === 'object' && !($item instanceof $this->type)) {
+        if (!$requiredTypeIsCallable && $itemIsObject && !($item instanceof $this->type)) {
             throw new InvalidArgumentException("Item is not type or subtype of $this->type");
         }
 
-        if ($type !== $this->type) {
+        if (!$requiredTypeIsCallable && !$itemIsObject && $itemType !== $this->type) {
             throw new InvalidArgumentException("Item is not of type: $this->type");
         }
     }

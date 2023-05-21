@@ -52,7 +52,7 @@ interface TypedCollectionInterface extends \IteratorAggregate, \Countable
     /**
      * @return static
      */
-    public function reverse(bool $preserveKeys = false): self;
+    public function reverse(): self;
 
     /**
      * @return static
@@ -78,7 +78,7 @@ interface TypedCollectionInterface extends \IteratorAggregate, \Countable
      * @return static
      * @throws InvalidArgumentException
      */
-    public function slice(int $offset, ?int $length = null, bool $preserveKeys = false): self;
+    public function slice(int $offset, ?int $length = null): self;
 
     /**
      * @param mixed $initial
