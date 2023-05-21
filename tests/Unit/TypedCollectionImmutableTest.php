@@ -14,7 +14,7 @@ final class TypedCollectionImmutableTest extends TestCase
     public function testCreateWithInvalidCallableItem(): void
     {
         self::expectException(InvalidArgumentException::class);
-        self::expectExceptionMessage('Item must be callable');
+        self::expectExceptionMessage('Value must be callable');
 
         TypedCollectionImmutable::create('callable', ['test']);
     }
@@ -22,7 +22,7 @@ final class TypedCollectionImmutableTest extends TestCase
     public function testCreateWithInvalidObjectItem(): void
     {
         self::expectException(InvalidArgumentException::class);
-        self::expectExceptionMessage('Item is not type or subtype of Traversable');
+        self::expectExceptionMessage('Value is not type or subtype of Traversable');
 
         TypedCollectionImmutable::create(\Traversable::class, [new \stdClass()]);
     }
@@ -30,7 +30,7 @@ final class TypedCollectionImmutableTest extends TestCase
     public function testCreateWithInvalidNonObjectItem(): void
     {
         self::expectException(InvalidArgumentException::class);
-        self::expectExceptionMessage('Item is not of type: stdClass');
+        self::expectExceptionMessage('Value is not of type: stdClass');
 
         TypedCollectionImmutable::create(\stdClass::class, ['test']);
     }
@@ -211,7 +211,7 @@ final class TypedCollectionImmutableTest extends TestCase
         $collection = TypedCollectionImmutable::create('int', [$item1]);
 
         self::expectException(InvalidArgumentException::class);
-        self::expectExceptionMessage('Item is not of type: integer');
+        self::expectExceptionMessage('Value is not of type: integer');
 
         $collection->add($item2);
     }
@@ -357,7 +357,7 @@ final class TypedCollectionImmutableTest extends TestCase
         self::assertSame([$item1, $item2, $item3], $newCollection->toArray());
     }
 
-    public function testMergeWithInvalidItems(): void
+    public function testMergeWithInvalidValues(): void
     {
         $item1 = 1;
         $item2 = '2';
@@ -367,7 +367,7 @@ final class TypedCollectionImmutableTest extends TestCase
         $collection2 = TypedCollectionImmutable::create('string', [$item2, $item3]);
 
         self::expectException(InvalidArgumentException::class);
-        self::expectExceptionMessage('Item is not of type: integer');
+        self::expectExceptionMessage('Value is not of type: integer');
 
         $collection1->merge($collection2);
     }
@@ -396,7 +396,7 @@ final class TypedCollectionImmutableTest extends TestCase
         $collection = TypedCollectionImmutable::create('int', [$item1, $item2, $item3]);
 
         self::expectException(InvalidArgumentException::class);
-        self::expectExceptionMessage('Item is not of type: integer');
+        self::expectExceptionMessage('Value is not of type: integer');
 
         $collection->insertAt(2, 1.0);
     }

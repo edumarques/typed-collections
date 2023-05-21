@@ -14,7 +14,7 @@ final class TypedCollectionTest extends TestCase
     public function testCreateWithInvalidCallableItem(): void
     {
         self::expectException(InvalidArgumentException::class);
-        self::expectExceptionMessage('Item must be callable');
+        self::expectExceptionMessage('Value must be callable');
 
         TypedCollection::create('callable', ['test']);
     }
@@ -22,7 +22,7 @@ final class TypedCollectionTest extends TestCase
     public function testCreateWithInvalidObjectItem(): void
     {
         self::expectException(InvalidArgumentException::class);
-        self::expectExceptionMessage('Item is not type or subtype of Traversable');
+        self::expectExceptionMessage('Value is not type or subtype of Traversable');
 
         TypedCollection::create(\Traversable::class, [new \stdClass()]);
     }
@@ -30,7 +30,7 @@ final class TypedCollectionTest extends TestCase
     public function testCreateWithInvalidNonObjectItem(): void
     {
         self::expectException(InvalidArgumentException::class);
-        self::expectExceptionMessage('Item is not of type: stdClass');
+        self::expectExceptionMessage('Value is not of type: stdClass');
 
         TypedCollection::create(\stdClass::class, ['test']);
     }
@@ -210,7 +210,7 @@ final class TypedCollectionTest extends TestCase
         $collection = TypedCollection::create('int', [$item1]);
 
         self::expectException(InvalidArgumentException::class);
-        self::expectExceptionMessage('Item is not of type: integer');
+        self::expectExceptionMessage('Value is not of type: integer');
 
         $collection->add($item2);
     }
@@ -347,7 +347,7 @@ final class TypedCollectionTest extends TestCase
         self::assertEquals([$item1, $item2, $item3], $collection1->toArray());
     }
 
-    public function testMergeWithInvalidItems(): void
+    public function testMergeWithInvalidValues(): void
     {
         $item1 = 1;
         $item2 = '2';
@@ -357,7 +357,7 @@ final class TypedCollectionTest extends TestCase
         $collection2 = TypedCollection::create('string', [$item2, $item3]);
 
         self::expectException(InvalidArgumentException::class);
-        self::expectExceptionMessage('Item is not of type: integer');
+        self::expectExceptionMessage('Value is not of type: integer');
 
         $collection1->merge($collection2);
     }
@@ -386,7 +386,7 @@ final class TypedCollectionTest extends TestCase
         $collection = TypedCollection::create('int', [$item1, $item2, $item3]);
 
         self::expectException(InvalidArgumentException::class);
-        self::expectExceptionMessage('Item is not of type: integer');
+        self::expectExceptionMessage('Value is not of type: integer');
 
         $collection->insertAt(2, 1.0);
     }
