@@ -17,6 +17,30 @@ This library contains four collection classes: mutable and immutable lists, and 
 composer require edumarques/typed-collections
 ```
 
+## Basic usage
+
+```php
+use EduardoMarques\TypedCollections\TypedCollection;
+use EduardoMarques\TypedCollections\TypedCollectionImmutable;
+
+$typedCollection1 = TypedCollection::create('int');
+$typedCollection2 = TypedCollection::create('string');
+
+$typedCollectionImmutable1 = TypedCollectionImmutable::create('callable');
+$typedCollectionImmutable2 = TypedCollectionImmutable::create(\stdClass::class);
+```
+
+```php
+use EduardoMarques\TypedCollections\TypedDictionary;
+use EduardoMarques\TypedCollections\TypedDictionaryImmutable;
+
+$typedDictionary1 = TypedDictionary::create('int', 'string');
+$typedDictionary2 = TypedDictionary::create('string', 'float');
+
+$typedDictionaryImmutable1 = TypedDictionaryImmutable::create('int', 'callable');
+$typedDictionaryImmutable2 = TypedDictionaryImmutable::create('string', \stdClass::class);
+```
+
 ## Requirements
 
 - v1.x
@@ -44,3 +68,7 @@ Dictionaries extend Collections' functionalities. The main difference is that th
 ## Support for abstract classes and interfaces
 
 Collections and Dictionaries will check inheritance, so if you require a base class, derived classes can be added safely.
+
+## Contributing
+
+Contributors are always welcome! For more information on how you can contribute, please read our [contribution guideline](CONTRIBUTING.md).
