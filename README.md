@@ -1,6 +1,7 @@
 Typed Collections
 ================
-[![edumarques](https://circleci.com/gh/edumarques/typed-collections.svg?style=svg)](https://app.circleci.com/pipelines/github/edumarques)
+[![edumarques](https://circleci.com/gh/edumarques/typed-collections.svg?style=shield)](https://app.circleci.com/pipelines/github/edumarques)
+[![codecov](https://codecov.io/gh/edumarques/typed-collections/branch/main/graph/badge.svg?token=ABGMyvr355)](https://codecov.io/gh/edumarques/typed-collections)
 
 ## Description
 
