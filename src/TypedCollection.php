@@ -32,7 +32,7 @@ class TypedCollection extends AbstractTypedCollection implements
      */
     public function add($item): TypedCollectionInterface
     {
-        $this->validateItem($item);
+        $this->validateValue($item);
 
         $this->items[] = $item;
 
@@ -114,11 +114,11 @@ class TypedCollection extends AbstractTypedCollection implements
     /**
      * @inheritDoc
      */
-    public function merge(TypedCollectionInterface $typedCollection): TypedCollectionInterface
+    public function merge(TypedCollectionInterface $collection): TypedCollectionInterface
     {
-        $items = $typedCollection->toArray();
+        $items = $collection->toArray();
 
-        $this->validateItems($items);
+        $this->validateValues($items);
 
         $this->items = array_merge($this->items, $items);
 
@@ -131,7 +131,7 @@ class TypedCollection extends AbstractTypedCollection implements
     public function insertAt(int $index, $item): TypedCollectionInterface
     {
         $this->validateIndex($index);
-        $this->validateItem($item);
+        $this->validateValue($item);
 
         $partA = array_slice($this->items, 0, $index);
         $partB = array_slice($this->items, $index, count($this->items));

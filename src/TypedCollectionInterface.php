@@ -8,13 +8,14 @@ use EduardoMarques\TypedCollections\Exception\InvalidArgumentException;
 use EduardoMarques\TypedCollections\Exception\OutOfRangeException;
 
 /**
- * @template-extends \IteratorAggregate<int, self>
+ * @template-extends \IteratorAggregate<int, mixed>
  */
 interface TypedCollectionInterface extends \IteratorAggregate, \Countable
 {
     /**
      * @param mixed[]|null $items
      *
+     * @return static
      * @throws InvalidArgumentException
      */
     public static function create(string $type, ?array $items = null): self;
@@ -71,8 +72,9 @@ interface TypedCollectionInterface extends \IteratorAggregate, \Countable
 
     /**
      * @return static
+     * @throws InvalidArgumentException
      */
-    public function merge(self $typedCollection): self;
+    public function merge(self $collection): self;
 
     /**
      * @return static
@@ -132,7 +134,7 @@ interface TypedCollectionInterface extends \IteratorAggregate, \Countable
     public function toArray(): array;
 
     /**
-     * @return \ArrayIterator<int, self>
+     * @return \ArrayIterator<int, mixed>
      */
     public function getIterator(): \ArrayIterator;
 

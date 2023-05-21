@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace EduardoMarques\TypedCollections;
 
 use EduardoMarques\TypedCollections\Exception\InvalidArgumentException;
-use EduardoMarques\TypedCollections\Exception\OutOfRangeException;
 
 trait TypeValidatorTrait
 {
@@ -44,12 +43,8 @@ trait TypeValidatorTrait
     {
         $scalarType = $this->getScalarType($type);
 
-        if ($scalarType === null) {
-            throw new InvalidArgumentException('This type is not supported or does not exist');
-        }
-
         if (!in_array($scalarType, ['integer', 'string'])) {
-            throw new InvalidArgumentException('This type is not supported as a key');
+            throw new InvalidArgumentException('This type is not supported for keys');
         }
 
         return $scalarType;
@@ -76,48 +71,78 @@ trait TypeValidatorTrait
     }
 
     /**
-     * @param mixed[] $items
+     * @param mixed[] $keyValueTuples
      *
      * @throws InvalidArgumentException
      */
-    protected function validateItems(array $items): void
+    protected function validateKeys(array $keyValueTuples): void
     {
-        foreach ($items as $item) {
-            $this->validateItem($item);
+        foreach ($keyValueTuples as $key => $value) {
+            $this->validateKey($key);
         }
     }
 
     /**
-     * @param mixed $item
+     * @param mixed[] $keyValueTuples
      *
      * @throws InvalidArgumentException
      */
-    protected function validateItem($item): void
+    protected function validateValues(array $keyValueTuples): void
     {
-        $itemType = gettype($item);
-        $requiredTypeIsCallable = $this->type === 'callable';
+        foreach ($keyValueTuples as $value) {
+            $this->validateValue($value);
+        }
+    }
+
+    /**
+     * @param string|int $key
+     *
+     * @throws InvalidArgumentException
+     */
+    protected function validateKey($key): void
+    {
+        $keyType = null;
+
+        if (property_exists($this, 'keyType')) {
+            $keyType = $this->keyType;
+        }
+
+        if (gettype($key) !== $keyType) {
+            throw new InvalidArgumentException("Key is not of type: $keyType");
+        }
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @throws InvalidArgumentException
+     */
+    protected function validateValue($value): void
+    {
+        $type = null;
+
+        if (property_exists($this, 'valueType')) {
+            $type = $this->valueType;
+        }
+
+        if (property_exists($this, 'type')) {
+            $type = $this->type;
+        }
+
+        $requiredTypeIsCallable = $type === 'callable';
+        $itemType = gettype($value);
         $itemIsObject = $itemType === 'object';
 
-        if ($requiredTypeIsCallable && !is_callable($item)) {
-            throw new InvalidArgumentException('Item must be callable');
+        if ($requiredTypeIsCallable && !is_callable($value)) {
+            throw new InvalidArgumentException('Value must be callable');
         }
 
-        if (!$requiredTypeIsCallable && $itemIsObject && !($item instanceof $this->type)) {
-            throw new InvalidArgumentException("Item is not type or subtype of $this->type");
+        if (!$requiredTypeIsCallable && $itemIsObject && !($value instanceof $type)) {
+            throw new InvalidArgumentException("Value is not type or subtype of $type");
         }
 
-        if (!$requiredTypeIsCallable && !$itemIsObject && $itemType !== $this->type) {
-            throw new InvalidArgumentException("Item is not of type: $this->type");
-        }
-    }
-
-    /**
-     * @throws OutOfRangeException
-     */
-    protected function validateIndex(int $index): void
-    {
-        if (!array_key_exists($index, $this->items)) {
-            throw new OutOfRangeException('Index out of collection bounds');
+        if (!$requiredTypeIsCallable && !$itemIsObject && $itemType !== $type) {
+            throw new InvalidArgumentException("Value is not of type: $type");
         }
     }
 }

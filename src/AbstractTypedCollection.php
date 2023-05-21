@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace EduardoMarques\TypedCollections;
 
 use EduardoMarques\TypedCollections\Exception\InvalidArgumentException;
+use EduardoMarques\TypedCollections\Exception\OutOfRangeException;
 
 abstract class AbstractTypedCollection implements TypedCollectionInterface
 {
@@ -34,7 +35,7 @@ abstract class AbstractTypedCollection implements TypedCollectionInterface
         }
 
         $items = array_values($items);
-        $this->validateItems($items);
+        $this->validateValues($items);
 
         $this->items = $items;
     }
@@ -153,5 +154,15 @@ abstract class AbstractTypedCollection implements TypedCollectionInterface
     public function count(): int
     {
         return count($this->items);
+    }
+
+    /**
+     * @throws OutOfRangeException
+     */
+    protected function validateIndex(int $index): void
+    {
+        if (!array_key_exists($index, $this->items)) {
+            throw new OutOfRangeException('Index out of collection bounds');
+        }
     }
 }
