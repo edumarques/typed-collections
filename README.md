@@ -5,12 +5,22 @@ Typed Collections
 
 ## Description
 
-This library contains four collection classes: mutable and immutable lists, and mutable and immutable dictionaries. Here we have the flexibility of creating mutable lists, i.e., whenever we perform an operation on its internal array, the same is altered. Or we can simply use the immutable lists, which generate a new instance of the collection class when operations are done on it.
+Typed collections are an implementation of typed lists. Collections allow us to have traversable lists of a predetermined type and its subtypes. Its behavior prevents the looseness of arrays in PHP.
+
+This library contains four collection classes: mutable and immutable lists, and mutable and immutable dictionaries. Mutable lists/dictionaries have its internal array altered whenever we perform operations on it. Immutable lists/dictionaries generate a new instance of itself when operations are done on it.
+
+## Installation
+
+```
+composer require edumarques/typed-collections
+```
 
 ## Requirements
 
 - v1.x
   - Requires PHP 7.1 or greater.
+- v2.x
+  - Requires PHP 8.0 or greater.
 
 ## Collection
 
@@ -26,8 +36,8 @@ Dictionaries extend Collections' functionalities. The main difference is that th
 - bool or boolean
 - float or double
 - array
-- object
 - callable
+- class-string
 
 ## Support for abstract classes and interfaces
 
