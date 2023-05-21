@@ -45,8 +45,6 @@ $typedDictionaryImmutable2 = TypedDictionaryImmutable::create('string', \stdClas
 
 - v1.x
   - Requires PHP 7.1 or greater.
-- v2.x
-  - Requires PHP 8.0 or greater.
 
 ## Collection
 
