@@ -1,0 +1,10 @@
+version: "3"
+
+services:
+    php:
+        build:
+            context: .
+        working_dir: /app
+        entrypoint: sh ./docker/php/entrypoint.sh
+        volumes:
+            - .:/app:rw

@@ -18,6 +18,7 @@ jobs:
                     paths:
                         - ./vendor
             -   run: ./vendor/bin/phpunit
+            -   run: ./vendor/bin/phpunit --coverage-clover coverage/clover/clover.xml --coverage-html coverage/html
             -   run: curl -Os https://uploader.codecov.io/latest/linux/codecov
-            -   run: sudo chmod +x
+            -   run: sudo chmod +x codecov
             -   run: codecov ./codecov
