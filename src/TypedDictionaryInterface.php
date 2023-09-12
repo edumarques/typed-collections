@@ -130,6 +130,27 @@ interface TypedDictionaryInterface extends \IteratorAggregate, \Countable
      */
     public function lastValue();
 
+    public function findFirstKey(callable $callable): ?int;
+
+    public function findLastKey(callable $callable): ?int;
+
+    /**
+     * @return mixed
+     */
+    public function findFirst(callable $callable);
+
+    /**
+     * @return mixed
+     */
+    public function findLast(callable $callable);
+
+    /**
+     * @return static
+     */
+    public function unique(bool $preserveKeys = false): self;
+
+    public function isEmpty(): bool;
+
     public function toCollection(): TypedCollectionInterface;
 
     /**

@@ -53,6 +53,11 @@ interface TypedCollectionInterface extends \IteratorAggregate, \Countable
     /**
      * @return static
      */
+    public function filterIndexes(callable $callable): self;
+
+    /**
+     * @return static
+     */
     public function reverse(): self;
 
     /**
@@ -127,6 +132,27 @@ interface TypedCollectionInterface extends \IteratorAggregate, \Countable
      * @return mixed
      */
     public function last();
+
+    public function findFirstIndex(callable $callable): ?int;
+
+    public function findLastIndex(callable $callable): ?int;
+
+    /**
+     * @return mixed
+     */
+    public function findFirst(callable $callable);
+
+    /**
+     * @return mixed
+     */
+    public function findLast(callable $callable);
+
+    /**
+     * @return static
+     */
+    public function unique(): self;
+
+    public function isEmpty(): bool;
 
     /**
      * @return mixed[]

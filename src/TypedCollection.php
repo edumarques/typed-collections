@@ -176,4 +176,22 @@ class TypedCollection extends AbstractTypedCollection implements
 
         return $this;
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function unique(): TypedCollectionInterface
+    {
+        $unique = static::create($this->type);
+
+        foreach ($this->items as $item) {
+            if (false === $unique->contains($item)) {
+                $unique->add($item);
+            }
+        }
+
+        $this->items = $unique->items;
+
+        return $this;
+    }
 }

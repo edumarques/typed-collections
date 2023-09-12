@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace EduardoMarques\TypedCollections;
 
+use EduardoMarques\TypedCollections\Enum\TypeEnum;
 use EduardoMarques\TypedCollections\Exception\InvalidArgumentException;
 
 trait TypeValidatorTrait
@@ -11,12 +12,12 @@ trait TypeValidatorTrait
     /**
      * @var string[]
      */
-    protected $supportedScalarTypes = ['string', 'integer', 'double', 'boolean'];
+    protected $supportedScalarTypes = [TypeEnum::STRING, TypeEnum::INTEGER, TypeEnum::DOUBLE, TypeEnum::BOOLEAN];
 
     /**
      * @var string[]
      */
-    protected $supportedNonScalarTypes = ['array', 'callable'];
+    protected $supportedNonScalarTypes = [TypeEnum::ARRAY, TypeEnum::CALLABLE];
 
     /**
      * @throws InvalidArgumentException
@@ -43,7 +44,7 @@ trait TypeValidatorTrait
     {
         $scalarType = $this->getScalarType($type);
 
-        if (!in_array($scalarType, ['integer', 'string'])) {
+        if (!in_array($scalarType, [TypeEnum::INTEGER, TypeEnum::STRING])) {
             throw new InvalidArgumentException('This type is not supported for keys');
         }
 
@@ -60,9 +61,9 @@ trait TypeValidatorTrait
     protected function getScalarType(string $type): ?string
     {
         $synonyms = [
-            'int' => 'integer',
-            'float' => 'double',
-            'bool' => 'boolean',
+            TypeEnum::INT => TypeEnum::INTEGER,
+            TypeEnum::FLOAT => TypeEnum::DOUBLE,
+            TypeEnum::BOOL => TypeEnum::BOOLEAN,
         ];
 
         $type = $synonyms[$type] ?? $type;
@@ -129,9 +130,9 @@ trait TypeValidatorTrait
             $type = $this->type;
         }
 
-        $requiredTypeIsCallable = $type === 'callable';
+        $requiredTypeIsCallable = $type === TypeEnum::CALLABLE;
         $itemType = gettype($value);
-        $itemIsObject = $itemType === 'object';
+        $itemIsObject = $itemType === TypeEnum::OBJECT;
 
         if ($requiredTypeIsCallable && !is_callable($value)) {
             throw new InvalidArgumentException('Value must be callable');

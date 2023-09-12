@@ -471,4 +471,181 @@ final class TypedCollectionImmutableTest extends TestCase
         self::assertSame([$item1, $item2, $item3], $collection->toArray());
         self::assertSame([$item1, $item2], $newCollection->toArray());
     }
+
+    public function testFilterIndexes(): void
+    {
+        $item1 = 1;
+        $item2 = 2;
+        $item3 = 3;
+        $item4 = 4;
+
+        $collection = TypedCollectionImmutable::create('int', [$item1, $item2, $item3, $item4]);
+
+        $callable = static function (int $index, int $item): bool {
+            return ($item * ($index + 1)) % 2 === 0;
+        };
+
+        $filtered = TypedCollectionImmutable::create('int', [1, 3]);
+
+        self::assertEquals($filtered, $collection->filterIndexes($callable));
+    }
+
+    public function testFindFirstIndex(): void
+    {
+        $item1 = 1;
+        $item2 = 2;
+        $item3 = 3;
+        $item4 = 4;
+
+        $collection = TypedCollectionImmutable::create('int', [$item1, $item2, $item3, $item4]);
+
+        $callable = static function (int $index, int $item): bool {
+            return ($item * ($index + 1)) % 2 === 0;
+        };
+
+        self::assertSame(1, $collection->findFirstIndex($callable));
+    }
+
+    public function testFindFirstIndexWhenItDoesNotMeetCriteria(): void
+    {
+        $item1 = 1;
+        $item2 = 2;
+        $item3 = 3;
+        $item4 = 4;
+
+        $collection = TypedCollectionImmutable::create('int', [$item1, $item2, $item3, $item4]);
+
+        $callable = static function (int $index, int $item): bool {
+            return $item < 0;
+        };
+
+        self::assertNull($collection->findFirstIndex($callable));
+    }
+
+    public function testFindLastIndex(): void
+    {
+        $item1 = 1;
+        $item2 = 2;
+        $item3 = 3;
+        $item4 = 4;
+
+        $collection = TypedCollectionImmutable::create('int', [$item1, $item2, $item3, $item4]);
+
+        $callable = static function (int $index, int $item): bool {
+            return ($item * ($index + 1)) % 2 === 0;
+        };
+
+        self::assertSame(3, $collection->findLastIndex($callable));
+    }
+
+    public function testFindLastIndexWhenItDoesNotMeetCriteria(): void
+    {
+        $item1 = 1;
+        $item2 = 2;
+        $item3 = 3;
+        $item4 = 4;
+
+        $collection = TypedCollectionImmutable::create('int', [$item1, $item2, $item3, $item4]);
+
+        $callable = static function (int $index, int $item): bool {
+            return $item < 0;
+        };
+
+        self::assertNull($collection->findLastIndex($callable));
+    }
+
+    public function testFindFirst(): void
+    {
+        $item1 = 1;
+        $item2 = 2;
+        $item3 = 3;
+        $item4 = 4;
+
+        $collection = TypedCollectionImmutable::create('int', [$item1, $item2, $item3, $item4]);
+
+        $callable = static function (int $index, int $item): bool {
+            return ($item * ($index + 1)) % 2 === 0;
+        };
+
+        self::assertSame(2, $collection->findFirst($callable));
+    }
+
+    public function testFindFirstWhenItDoesNotMeetCriteria(): void
+    {
+        $item1 = 1;
+        $item2 = 2;
+        $item3 = 3;
+        $item4 = 4;
+
+        $collection = TypedCollectionImmutable::create('int', [$item1, $item2, $item3, $item4]);
+
+        $callable = static function (int $index, int $item): bool {
+            return $item < 0;
+        };
+
+        self::assertNull($collection->findFirst($callable));
+    }
+
+    public function testFindLast(): void
+    {
+        $item1 = 1;
+        $item2 = 2;
+        $item3 = 3;
+        $item4 = 4;
+
+        $collection = TypedCollectionImmutable::create('int', [$item1, $item2, $item3, $item4]);
+
+        $callable = static function (int $index, int $item): bool {
+            return ($item * ($index + 1)) % 2 === 0;
+        };
+
+        self::assertSame(4, $collection->findLast($callable));
+    }
+
+    public function testFindLastWhenItDoesNotMeetCriteria(): void
+    {
+        $item1 = 1;
+        $item2 = 2;
+        $item3 = 3;
+        $item4 = 4;
+
+        $collection = TypedCollectionImmutable::create('int', [$item1, $item2, $item3, $item4]);
+
+        $callable = static function (int $index, int $item): bool {
+            return $item < 0;
+        };
+
+        self::assertNull($collection->findLast($callable));
+    }
+
+    public function testIsEmptyWhenItIsNotEmpty(): void
+    {
+        $item1 = 1;
+
+        $collection = TypedCollectionImmutable::create('int', [$item1]);
+
+        self::assertFalse($collection->isEmpty());
+    }
+
+    public function testIsEmptyWhenItIsEmpty(): void
+    {
+        $collection = TypedCollectionImmutable::create('int');
+
+        self::assertTrue($collection->isEmpty());
+    }
+
+    public function testUnique(): void
+    {
+        $item1 = 5;
+        $item2 = 5;
+        $item3 = 3;
+        $item4 = 3;
+
+        $collection = TypedCollectionImmutable::create('int', [$item1, $item2, $item3, $item4]);
+
+        $uniqueCollection = $collection->unique();
+
+        self::assertNotSame($uniqueCollection, $collection);
+        self::assertSame([$item1, $item3], $uniqueCollection->toArray());
+    }
 }

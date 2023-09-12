@@ -489,6 +489,180 @@ final class TypedDictionaryImmutableTest extends TestCase
         self::assertSame([0 => $value1, 1 => $value2], $newDictionary->toArray());
     }
 
+    public function testFindFirstKey(): void
+    {
+        $value1 = 1;
+        $value2 = 2;
+        $value3 = 3;
+        $value4 = 4;
+
+        $dictionary = TypedDictionaryImmutable::create('int', 'int', [$value1, $value2, $value3, $value4]);
+
+        $callable = static function (int $key, int $value): bool {
+            return ($value * ($key + 1)) % 2 === 0;
+        };
+
+        self::assertSame(1, $dictionary->findFirstKey($callable));
+    }
+
+    public function testFindFirstKeyWhenItDoesNotMeetCriteria(): void
+    {
+        $value1 = 1;
+        $value2 = 2;
+        $value3 = 3;
+        $value4 = 4;
+
+        $dictionary = TypedDictionaryImmutable::create('int', 'int', [$value1, $value2, $value3, $value4]);
+
+        $callable = static function (int $key, int $value): bool {
+            return $value < 0;
+        };
+
+        self::assertNull($dictionary->findFirstKey($callable));
+    }
+
+    public function testFindLastKey(): void
+    {
+        $value1 = 1;
+        $value2 = 2;
+        $value3 = 3;
+        $value4 = 4;
+
+        $dictionary = TypedDictionaryImmutable::create('int', 'int', [$value1, $value2, $value3, $value4]);
+
+        $callable = static function (int $key, int $value): bool {
+            return ($value * ($key + 1)) % 2 === 0;
+        };
+
+        self::assertSame(3, $dictionary->findLastKey($callable));
+    }
+
+    public function testFindLastKeyWhenItDoesNotMeetCriteria(): void
+    {
+        $value1 = 1;
+        $value2 = 2;
+        $value3 = 3;
+        $value4 = 4;
+
+        $dictionary = TypedDictionaryImmutable::create('int', 'int', [$value1, $value2, $value3, $value4]);
+
+        $callable = static function (int $key, int $value): bool {
+            return $value < 0;
+        };
+
+        self::assertNull($dictionary->findLastKey($callable));
+    }
+
+    public function testFindFirst(): void
+    {
+        $value1 = 1;
+        $value2 = 2;
+        $value3 = 3;
+        $value4 = 4;
+
+        $dictionary = TypedDictionaryImmutable::create('int', 'int', [$value1, $value2, $value3, $value4]);
+
+        $callable = static function (int $key, int $value): bool {
+            return ($value * ($key + 1)) % 2 === 0;
+        };
+
+        self::assertSame(2, $dictionary->findFirst($callable));
+    }
+
+    public function testFindFirstWhenItDoesNotMeetCriteria(): void
+    {
+        $value1 = 1;
+        $value2 = 2;
+        $value3 = 3;
+        $value4 = 4;
+
+        $dictionary = TypedDictionaryImmutable::create('int', 'int', [$value1, $value2, $value3, $value4]);
+
+        $callable = static function (int $key, int $value): bool {
+            return $value < 0;
+        };
+
+        self::assertNull($dictionary->findFirst($callable));
+    }
+
+    public function testFindLast(): void
+    {
+        $value1 = 1;
+        $value2 = 2;
+        $value3 = 3;
+        $value4 = 4;
+
+        $dictionary = TypedDictionaryImmutable::create('int', 'int', [$value1, $value2, $value3, $value4]);
+
+        $callable = static function (int $key, int $value): bool {
+            return ($value * ($key + 1)) % 2 === 0;
+        };
+
+        self::assertSame(4, $dictionary->findLast($callable));
+    }
+
+    public function testFindLastWhenItDoesNotMeetCriteria(): void
+    {
+        $value1 = 1;
+        $value2 = 2;
+        $value3 = 3;
+        $value4 = 4;
+
+        $dictionary = TypedDictionaryImmutable::create('int', 'int', [$value1, $value2, $value3, $value4]);
+
+        $callable = static function (int $key, int $value): bool {
+            return $value < 0;
+        };
+
+        self::assertNull($dictionary->findLast($callable));
+    }
+
+    public function testIsEmptyWhenItIsNotEmpty(): void
+    {
+        $value1 = 1;
+
+        $dictionary =  TypedDictionaryImmutable::create('int', 'int', [$value1]);
+
+        self::assertFalse($dictionary->isEmpty());
+    }
+
+    public function testIsEmptyWhenItIsEmpty(): void
+    {
+        $dictionary =  TypedDictionaryImmutable::create('int', 'int');
+
+        self::assertTrue($dictionary->isEmpty());
+    }
+
+    public function testUniquePreservingKeys(): void
+    {
+        $value1 = 5;
+        $value2 = 5;
+        $value3 = 3;
+        $value4 = 3;
+
+        $dictionary = TypedDictionaryImmutable::create('int', 'int', [$value1, $value2, $value3, $value4]);
+
+        $uniqueDictionary = $dictionary->unique(true);
+
+        self::assertNotSame($uniqueDictionary, $dictionary);
+        self::assertSame([0 => $value1, 2 => $value3], $uniqueDictionary->toArray());
+    }
+
+    public function testUniqueNotPreservingKeys(): void
+    {
+        $value1 = 5;
+        $value2 = 5;
+        $value3 = 3;
+        $value4 = 3;
+
+        $dictionary = TypedDictionaryImmutable::create('int', 'int', [$value1, $value2, $value3, $value4]);
+
+        $uniqueDictionary = $dictionary->unique();
+
+        self::assertNotSame($uniqueDictionary, $dictionary);
+        self::assertSame([$value1, $value3], $uniqueDictionary->toArray());
+    }
+
     public function testToCollection(): void
     {
         $value1 = 1;

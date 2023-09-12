@@ -175,4 +175,20 @@ class TypedCollectionImmutable extends AbstractTypedCollection implements
 
         return new static($this->type, $items);
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function unique(): TypedCollectionInterface
+    {
+        $unique = static::create($this->type);
+
+        foreach ($this->items as $item) {
+            if (false === $unique->contains($item)) {
+                $unique = $unique->add($item);
+            }
+        }
+
+        return $unique;
+    }
 }

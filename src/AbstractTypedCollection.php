@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace EduardoMarques\TypedCollections;
 
+use EduardoMarques\TypedCollections\Enum\TypeEnum;
 use EduardoMarques\TypedCollections\Exception\InvalidArgumentException;
 use EduardoMarques\TypedCollections\Exception\OutOfRangeException;
 
@@ -77,6 +78,22 @@ abstract class AbstractTypedCollection implements TypedCollectionInterface
     /**
      * @inheritDoc
      */
+    public function filterIndexes(callable $callable): TypedCollectionInterface
+    {
+        $indexes = static::create(TypeEnum::INT);
+
+        foreach ($this->items as $index => $item) {
+            if ($callable($index, $item)) {
+                $indexes = $indexes->add($index);
+            }
+        }
+
+        return $indexes;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function slice(int $offset, ?int $length = null): TypedCollectionInterface
     {
         $items = array_slice($this->items, $offset, $length);
@@ -126,6 +143,63 @@ abstract class AbstractTypedCollection implements TypedCollectionInterface
         $items = $this->items;
 
         return end($items) ?: null;
+    }
+
+    public function findFirstIndex(callable $callable): ?int
+    {
+        foreach ($this->items as $index => $item) {
+            if ($callable($index, $item)) {
+                return $index;
+            }
+        }
+
+        return null;
+    }
+
+    public function findLastIndex(callable $callable): ?int
+    {
+        for ($index = $this->lastIndex(); $index >= $this->firstIndex(); $index--) {
+            $item = $this->at($index);
+
+            if ($callable($index, $item)) {
+                return $index;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findFirst(callable $callable)
+    {
+        $index = $this->findFirstIndex($callable);
+
+        if ($index === null) {
+            return null;
+        }
+
+        return $this->at($index);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findLast(callable $callable)
+    {
+        $index = $this->findLastIndex($callable);
+
+        if ($index === null) {
+            return null;
+        }
+
+        return $this->at($index);
+    }
+
+    public function isEmpty(): bool
+    {
+        return $this->count() < 1;
     }
 
     /**

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace EduardoMarques\TypedCollections;
 
+use EduardoMarques\TypedCollections\Enum\TypeEnum;
+
 class TypedDictionaryImmutable extends AbstractTypedDictionary implements
     TypedDictionaryInterface,
     TypedDictionaryImmutableInterface
@@ -138,6 +140,30 @@ class TypedDictionaryImmutable extends AbstractTypedDictionary implements
         unset($storage[$lastKey]);
 
         return new static($this->keyType, $this->valueType, $storage);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function unique(bool $preserveKeys = false): TypedDictionaryInterface
+    {
+        $keyType = $preserveKeys ? $this->keyType : TypeEnum::INT;
+
+        $unique = static::create($keyType, $this->valueType);
+
+        $defaultKey = 0;
+
+        foreach ($this->storage as $key => $value) {
+            if ($unique->hasValue($value)) {
+                continue;
+            }
+
+            $uniqueKey = $preserveKeys ? $key : $defaultKey++;
+
+            $unique = $unique->set($uniqueKey, $value);
+        }
+
+        return $unique;
     }
 
     public function toCollection(): TypedCollectionInterface

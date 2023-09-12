@@ -166,6 +166,63 @@ abstract class AbstractTypedDictionary implements TypedDictionaryInterface
         return $this->storage[$lastKey] ?? null;
     }
 
+    public function findFirstKey(callable $callable): ?int
+    {
+        foreach ($this->storage as $key => $value) {
+            if ($callable($key, $value)) {
+                return $key;
+            }
+        }
+
+        return null;
+    }
+
+    public function findLastKey(callable $callable): ?int
+    {
+        for ($key = $this->lastKey(); $key >= $this->firstKey(); $key--) {
+            $value = $this->get($key);
+
+            if ($callable($key, $value)) {
+                return $key;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findFirst(callable $callable)
+    {
+        $key = $this->findFirstKey($callable);
+
+        if ($key === null) {
+            return null;
+        }
+
+        return $this->get($key);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findLast(callable $callable)
+    {
+        $key = $this->findLastKey($callable);
+
+        if ($key === null) {
+            return null;
+        }
+
+        return $this->get($key);
+    }
+
+    public function isEmpty(): bool
+    {
+        return $this->count() < 1;
+    }
+
     /**
      * @inheritDoc
      *
