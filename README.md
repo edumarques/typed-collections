@@ -1,7 +1,7 @@
 Typed Collections
 ================
+![Packagist Dependency Version](https://img.shields.io/packagist/dependency-v/edumarques/typed-collections/php?version=v1.x-dev&color=%23777BB3)
 ![GitHub](https://img.shields.io/github/license/edumarques/typed-collections)
-![Packagist Version](https://img.shields.io/packagist/v/edumarques/typed-collections)
 [![edumarques](https://circleci.com/gh/edumarques/typed-collections.svg?style=shield)](https://app.circleci.com/pipelines/github/edumarques)
 [![codecov](https://codecov.io/gh/edumarques/typed-collections/branch/main/graph/badge.svg?token=ABGMyvr355)](https://codecov.io/gh/edumarques/typed-collections)
 
