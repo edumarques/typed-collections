@@ -41,11 +41,6 @@ $typedDictionaryImmutable1 = TypedDictionaryImmutable::create('int', 'callable')
 $typedDictionaryImmutable2 = TypedDictionaryImmutable::create('string', \stdClass::class);
 ```
 
-## Requirements
-
-- v1.x
-  - Requires PHP 7.1 or greater.
-
 ## Collection
 
 A PHP implementation of an array list. Its type is specified at instantiation/construction. The class will perform runtime type checks to validate the appropriate values are being added. Many of the standard array functionalities are encapsulated in this class.
