@@ -22,23 +22,27 @@ composer require edumarques/typed-collections
 ```php
 use EduardoMarques\TypedCollections\TypedCollection;
 use EduardoMarques\TypedCollections\TypedCollectionImmutable;
+use EduardoMarques\TypedCollections\Enum\ScalarType;
+use EduardoMarques\TypedCollections\Enum\NonScalarType;
 
-$typedCollection1 = TypedCollection::create('int');
-$typedCollection2 = TypedCollection::create('string');
+$typedCollection1 = TypedCollection::create(ScalarType::INTEGER);
+$typedCollection2 = TypedCollection::create(ScalarType::STRING);
 
-$typedCollectionImmutable1 = TypedCollectionImmutable::create('callable');
+$typedCollectionImmutable1 = TypedCollectionImmutable::create(NonScalarType::CALLABLE);
 $typedCollectionImmutable2 = TypedCollectionImmutable::create(\stdClass::class);
 ```
 
 ```php
 use EduardoMarques\TypedCollections\TypedDictionary;
 use EduardoMarques\TypedCollections\TypedDictionaryImmutable;
+use EduardoMarques\TypedCollections\Enum\ScalarType;
+use EduardoMarques\TypedCollections\Enum\NonScalarType;
 
-$typedDictionary1 = TypedDictionary::create('int', 'string');
-$typedDictionary2 = TypedDictionary::create('string', 'float');
+$typedDictionary1 = TypedDictionary::create(ScalarType::INTEGER, ScalarType::STRING);
+$typedDictionary2 = TypedDictionary::create(ScalarType::STRING, ScalarType::DOUBLE);
 
-$typedDictionaryImmutable1 = TypedDictionaryImmutable::create('int', 'callable');
-$typedDictionaryImmutable2 = TypedDictionaryImmutable::create('string', \stdClass::class);
+$typedDictionaryImmutable1 = TypedDictionaryImmutable::create(ScalarType::INTEGER, NonScalarType::CALLABLE);
+$typedDictionaryImmutable2 = TypedDictionaryImmutable::create(ScalarType::STRING, \stdClass::class);
 ```
 
 ## Collection
@@ -51,12 +55,13 @@ Dictionaries extend Collections' functionalities. The main difference is that th
 
 ## Supported types:
 
-- int or integer 
-- bool or boolean
-- float or double
-- array
-- callable
-- class-string
+- `ScalarType::INTEGER`
+- `ScalarType::STRING`
+- `ScalarType::BOOLEAN`
+- `ScalarType::DOUBLE`
+- `NonScalarType::ARRAY`
+- `NonScalarType::CALLABLE`
+- `class-string`
 
 ## Support for abstract classes and interfaces
 
