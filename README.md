@@ -14,7 +14,7 @@ This library contains four collection classes: mutable and immutable lists, and 
 ## Installation
 
 ```
-composer require edumarques/typed-collections
+composer require edumarques/typed-collections:2.*
 ```
 
 ## Basic usage
