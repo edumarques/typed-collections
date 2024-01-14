@@ -6,8 +6,5 @@ namespace EduardoMarques\TypedCollections;
 
 interface TypedDictionaryImmutableInterface
 {
-    /**
-     * @return static
-     */
-    public static function createFromMutable(TypedDictionary $dictionary): self;
+    public static function createFromMutable(TypedDictionary $dictionary): static;
 }

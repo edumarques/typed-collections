@@ -4,23 +4,23 @@ declare(strict_types=1);
 
 namespace EduardoMarques\TypedCollections;
 
+use EduardoMarques\TypedCollections\Enum\ScalarType;
+use EduardoMarques\TypedCollections\Exception\Exception;
+
 class TypedDictionary extends AbstractTypedDictionary implements
     TypedDictionaryInterface,
     TypedDictionaryMutableInterface
 {
     /**
-     * @inheritDoc
      * @codeCoverageIgnore
+     * @throws Exception
      */
-    public static function createFromImmutable(TypedDictionaryImmutable $dictionary): TypedDictionaryMutableInterface
+    public static function createFromImmutable(TypedDictionaryImmutable $dictionary): static
     {
-        return new static($dictionary->getKeyType(), $dictionary->getValueType(), $dictionary->toArray());
+        return new static($dictionary->getKeyType(), $dictionary->getValueType(), $dictionary->getStorage());
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function clear(): TypedDictionaryInterface
+    public function clear(): static
     {
         $this->storage = [];
 
@@ -28,9 +28,9 @@ class TypedDictionary extends AbstractTypedDictionary implements
     }
 
     /**
-     * @inheritDoc
+     * @throws Exception
      */
-    public function set($key, $value): TypedDictionaryInterface
+    public function set(int|string $key, mixed $value): static
     {
         $this->validateKey($key);
         $this->validateValue($value);
@@ -41,9 +41,9 @@ class TypedDictionary extends AbstractTypedDictionary implements
     }
 
     /**
-     * @inheritDoc
+     * @throws Exception
      */
-    public function remove($key): TypedDictionaryInterface
+    public function remove(int|string $key): static
     {
         if ($this->hasKey($key)) {
             unset($this->storage[$key]);
@@ -52,14 +52,11 @@ class TypedDictionary extends AbstractTypedDictionary implements
         return $this;
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function filter(callable $condition): TypedDictionaryInterface
+    public function filter(callable $condition): static
     {
         $storage = [];
 
-        foreach ($this->storage as $key => $value) {
+        foreach ($this->getStorage() as $key => $value) {
             if ($condition($key, $value)) {
                 $storage[$key] = $value;
             }
@@ -71,53 +68,49 @@ class TypedDictionary extends AbstractTypedDictionary implements
     }
 
     /**
-     * @inheritDoc
+     * @throws Exception
      */
-    public function map(callable $callable): TypedDictionaryInterface
+    public function map(callable $callable): static
     {
         $storage = [];
-        $keyType = null;
-        $valueType = null;
 
-        foreach ($this->storage as $key => $value) {
+        foreach ($this->getStorage() as $key => $value) {
             $result = $callable($key, $value);
             [$newKey, $newValue] = is_array($result) ? $result : [$key, $result];
-
-            if ($keyType === null && $valueType === null) {
-                $keyType = gettype($newKey);
-                $valueType = gettype($newValue);
-                $valueType = $valueType === 'object' ? get_class($newValue) : $valueType;
-            }
-
             $storage[$newKey] = $newValue;
         }
 
-        $this->keyType = $keyType ?? $this->keyType;
-        $this->valueType = $valueType ?? $this->valueType;
+        if (false === empty($storage)) {
+            $first = reset($storage);
+            $keyPrimitiveType = gettype(key($storage));
+            $keyType = ScalarType::getFromPrimitiveType($keyPrimitiveType);
+            $valueType = TypeMapper::getType($first);
+        }
+
+        $this->keyType = $keyType ?? $this->getKeyType();
+        $this->valueType = $valueType ?? $this->getValueType();
         $this->storage = $storage;
 
         return $this;
     }
 
     /**
-     * @inheritDoc
+     * @throws Exception
      */
-    public function merge(TypedDictionaryInterface $dictionary): TypedDictionaryInterface
+    public function merge(TypedDictionaryInterface $dictionary): static
     {
-        $keyValueTuples = $dictionary->toArray();
+        /** @phpstan-ignore-next-line */
+        $storage = $dictionary->getStorage();
 
-        $this->validateKeys($keyValueTuples);
-        $this->validateValues($keyValueTuples);
+        $this->validateKeys($storage);
+        $this->validateValues($storage);
 
-        $this->storage = array_merge($this->storage, $keyValueTuples);
+        $this->storage = array_merge($this->getStorage(), $storage);
 
         return $this;
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function dropFirst(): TypedDictionaryInterface
+    public function dropFirst(): static
     {
         $firstKey = $this->firstKey();
 
@@ -126,10 +119,7 @@ class TypedDictionary extends AbstractTypedDictionary implements
         return $this;
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function dropLast(): TypedDictionaryInterface
+    public function dropLast(): static
     {
         $lastKey = $this->lastKey();
 
@@ -138,8 +128,11 @@ class TypedDictionary extends AbstractTypedDictionary implements
         return $this;
     }
 
+    /**
+     * @throws Exception
+     */
     public function toCollection(): TypedCollectionInterface
     {
-        return TypedCollection::create($this->valueType, $this->values());
+        return TypedCollection::create($this->getValueType(), $this->values());
     }
 }

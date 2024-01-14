@@ -4,75 +4,46 @@ declare(strict_types=1);
 
 namespace EduardoMarques\TypedCollections;
 
+use EduardoMarques\TypedCollections\Enum\NonScalarType;
+use EduardoMarques\TypedCollections\Enum\ScalarType;
+use EduardoMarques\TypedCollections\Enum\TypeInterface;
+use EduardoMarques\TypedCollections\Exception\Exception;
 use EduardoMarques\TypedCollections\Exception\InvalidArgumentException;
 
 trait TypeValidatorTrait
 {
     /**
-     * @var string[]
-     */
-    protected $supportedScalarTypes = ['string', 'integer', 'double', 'boolean'];
-
-    /**
-     * @var string[]
-     */
-    protected $supportedNonScalarTypes = ['array', 'callable'];
-
-    /**
      * @throws InvalidArgumentException
      */
-    protected function determineValueType(string $type): string
+    protected function determineValueType(TypeInterface|string $type): TypeInterface|string
     {
-        if ($this->nonScalarTypeExists($type)) {
+        if (
+            $type instanceof TypeInterface
+            || class_exists($type)
+            || interface_exists($type)
+        ) {
             return $type;
         }
 
-        $scalarType = $this->getScalarType($type);
-
-        if ($scalarType === null) {
-            throw new InvalidArgumentException('This type is not supported or does not exist');
-        }
-
-        return $scalarType;
+        throw new InvalidArgumentException('This type is not supported or does not exist');
     }
 
     /**
      * @throws InvalidArgumentException
      */
-    protected function determineKeyType(string $type): string
+    protected function determineKeyType(ScalarType $type): ScalarType
     {
-        $scalarType = $this->getScalarType($type);
-
-        if (!in_array($scalarType, ['integer', 'string'])) {
-            throw new InvalidArgumentException('This type is not supported for keys');
+        if (ScalarType::isValidKeyType($type)) {
+            return $type;
         }
 
-        return $scalarType;
-    }
-
-    protected function nonScalarTypeExists(string $type): bool
-    {
-        return class_exists($type)
-            || interface_exists($type)
-            || in_array($type, $this->supportedNonScalarTypes);
-    }
-
-    protected function getScalarType(string $type): ?string
-    {
-        $synonyms = [
-            'int' => 'integer',
-            'float' => 'double',
-            'bool' => 'boolean',
-        ];
-
-        $type = $synonyms[$type] ?? $type;
-
-        return in_array($type, $this->supportedScalarTypes) ? $type : null;
+        throw new InvalidArgumentException('This type is not supported for keys');
     }
 
     /**
-     * @param mixed[] $keyValueTuples
+     * @param array<int|string, mixed> $keyValueTuples
      *
+     * @throws Exception
      * @throws InvalidArgumentException
      */
     protected function validateKeys(array $keyValueTuples): void
@@ -83,8 +54,9 @@ trait TypeValidatorTrait
     }
 
     /**
-     * @param mixed[] $keyValueTuples
+     * @param array<int, mixed> $keyValueTuples
      *
+     * @throws Exception
      * @throws InvalidArgumentException
      */
     protected function validateValues(array $keyValueTuples): void
@@ -95,54 +67,32 @@ trait TypeValidatorTrait
     }
 
     /**
-     * @param string|int $key
-     *
+     * @throws Exception
      * @throws InvalidArgumentException
      */
-    protected function validateKey($key): void
+    protected function validateKey(int|string $key): void
     {
-        $keyType = null;
-
-        if (property_exists($this, 'keyType')) {
-            $keyType = $this->keyType;
-        }
-
-        if (gettype($key) !== $keyType) {
-            throw new InvalidArgumentException("Key is not of type: $keyType");
+        /** @phpstan-ignore-next-line */
+        if ($this->keyType !== TypeMapper::getType($key)) {
+            /** @phpstan-ignore-next-line */
+            throw new InvalidArgumentException("Key is not of type: {$this->keyType->name}");
         }
     }
 
     /**
-     * @param mixed $value
-     *
+     * @throws Exception
      * @throws InvalidArgumentException
      */
-    protected function validateValue($value): void
+    protected function validateValue(mixed $value): void
     {
-        $type = null;
+        /** @var ScalarType|NonScalarType|string $type */
+        /** @phpstan-ignore-next-line */
+        $type = $this->valueType ?? $this->type;
 
-        if (property_exists($this, 'valueType')) {
-            $type = $this->valueType;
-        }
+        if ($type !== TypeMapper::getType($value)) {
+            $typeString = is_object($type) ? $type->name : $type;
 
-        if (property_exists($this, 'type')) {
-            $type = $this->type;
-        }
-
-        $requiredTypeIsCallable = $type === 'callable';
-        $itemType = gettype($value);
-        $itemIsObject = $itemType === 'object';
-
-        if ($requiredTypeIsCallable && !is_callable($value)) {
-            throw new InvalidArgumentException('Value must be callable');
-        }
-
-        if (!$requiredTypeIsCallable && $itemIsObject && !($value instanceof $type)) {
-            throw new InvalidArgumentException("Value is not type or subtype of $type");
-        }
-
-        if (!$requiredTypeIsCallable && !$itemIsObject && $itemType !== $type) {
-            throw new InvalidArgumentException("Value is not of type: $type");
+            throw new InvalidArgumentException("Value is not of type: $typeString");
         }
     }
 }

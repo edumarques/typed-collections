@@ -4,62 +4,51 @@ declare(strict_types=1);
 
 namespace EduardoMarques\TypedCollections;
 
-use EduardoMarques\TypedCollections\Exception\InvalidArgumentException;
+use EduardoMarques\TypedCollections\Enum\ScalarType;
+use EduardoMarques\TypedCollections\Enum\TypeInterface;
+use EduardoMarques\TypedCollections\Exception\Exception;
 
 abstract class AbstractTypedDictionary implements TypedDictionaryInterface
 {
     use TypeValidatorTrait;
 
     /**
-     * @var array<string|int, mixed>
-     */
-    protected $storage = [];
-
-    /**
-     * @var string
-     */
-    protected $keyType;
-
-    /**
-     * @var string
-     */
-    protected $valueType;
-
-    /**
-     * @param array<string|int, mixed>|null $keyValueTuples
+     * @param TypeInterface|class-string $valueType
+     * @param array<int|string, mixed> $storage
      *
-     * @throws InvalidArgumentException
+     * @throws Exception
      */
-    final protected function __construct(string $keyType, string $valueType, ?array $keyValueTuples = null)
-    {
+    final protected function __construct(
+        protected ScalarType $keyType,
+        protected TypeInterface|string $valueType,
+        protected array $storage = []
+    ) {
         $this->keyType = $this->determineKeyType($keyType);
         $this->valueType = $this->determineValueType($valueType);
 
-        if ($keyValueTuples === null) {
+        if (empty($storage)) {
             return;
         }
 
-        $this->validateKeys($keyValueTuples);
-        $this->validateValues($keyValueTuples);
-
-        $this->storage = $keyValueTuples;
+        $this->validateKeys($storage);
+        $this->validateValues($storage);
     }
 
     /**
      * @inheritDoc
      */
     public static function create(
-        string $keyType,
-        string $valueType,
-        ?array $keyValueTuples = null
-    ): TypedDictionaryInterface {
-        return new static($keyType, $valueType, $keyValueTuples);
+        ScalarType $keyType,
+        TypeInterface|string $valueType,
+        array $storage = []
+    ): static {
+        return new static($keyType, $valueType, $storage);
     }
 
     /**
      * @codeCoverageIgnore
      */
-    public function getKeyType(): string
+    public function getKeyType(): ScalarType
     {
         return $this->keyType;
     }
@@ -67,15 +56,15 @@ abstract class AbstractTypedDictionary implements TypedDictionaryInterface
     /**
      * @codeCoverageIgnore
      */
-    public function getValueType(): string
+    public function getValueType(): TypeInterface|string
     {
         return $this->valueType;
     }
 
     /**
-     * @inheritDoc
+     * @throws Exception
      */
-    public function hasKey($key): bool
+    public function hasKey(int|string $key): bool
     {
         $this->validateKey($key);
 
@@ -83,9 +72,9 @@ abstract class AbstractTypedDictionary implements TypedDictionaryInterface
     }
 
     /**
-     * @inheritDoc
+     * @throws Exception
      */
-    public function hasValue($value): bool
+    public function hasValue(mixed $value): bool
     {
         $this->validateValue($value);
 
@@ -93,9 +82,9 @@ abstract class AbstractTypedDictionary implements TypedDictionaryInterface
     }
 
     /**
-     * @inheritDoc
+     * @throws Exception
      */
-    public function get($key)
+    public function get(int|string $key): mixed
     {
         return $this->hasKey($key) ? $this->storage[$key] : null;
     }
@@ -116,18 +105,12 @@ abstract class AbstractTypedDictionary implements TypedDictionaryInterface
         return array_values($this->storage);
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function reduce(callable $callable, $initial = null)
+    public function reduce(callable $callable, mixed $initial = null): mixed
     {
         return array_reduce($this->storage, $callable, $initial);
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function firstKey()
+    public function firstKey(): int|string|null
     {
         $storage = $this->storage;
         reset($storage);
@@ -135,10 +118,7 @@ abstract class AbstractTypedDictionary implements TypedDictionaryInterface
         return key($storage);
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function lastKey()
+    public function lastKey(): int|string|null
     {
         $storage = $this->storage;
         end($storage);
@@ -146,20 +126,14 @@ abstract class AbstractTypedDictionary implements TypedDictionaryInterface
         return key($storage);
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function firstValue()
+    public function firstValue(): mixed
     {
         $firstKey = $this->firstKey();
 
         return $this->storage[$firstKey] ?? null;
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function lastValue()
+    public function lastValue(): mixed
     {
         $lastKey = $this->lastKey();
 
@@ -192,5 +166,13 @@ abstract class AbstractTypedDictionary implements TypedDictionaryInterface
     public function count(): int
     {
         return count($this->storage);
+    }
+
+    /**
+     * @return array<int|string, mixed>
+     */
+    protected function getStorage(): array
+    {
+        return $this->storage;
     }
 }

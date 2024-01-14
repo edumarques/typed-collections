@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace EduardoMarques\TypedCollections;
 
-use EduardoMarques\TypedCollections\Exception\InvalidArgumentException;
+use EduardoMarques\TypedCollections\Enum\TypeInterface;
+use EduardoMarques\TypedCollections\Exception\Exception;
 use EduardoMarques\TypedCollections\Exception\OutOfRangeException;
 
 abstract class AbstractTypedCollection implements TypedCollectionInterface
@@ -12,25 +13,18 @@ abstract class AbstractTypedCollection implements TypedCollectionInterface
     use TypeValidatorTrait;
 
     /**
-     * @var array<int, mixed>
-     */
-    protected $items = [];
-
-    /**
-     * @var string
-     */
-    protected $type;
-
-    /**
-     * @param array<int, mixed>|null $items
+     * @param TypeInterface|class-string $type
+     * @param array<int, mixed> $items
      *
-     * @throws InvalidArgumentException
+     * @throws Exception
      */
-    final protected function __construct(string $type, ?array $items = null)
-    {
+    final protected function __construct(
+        protected TypeInterface|string $type,
+        protected array $items = []
+    ) {
         $this->type = $this->determineValueType($type);
 
-        if ($items === null) {
+        if (empty($items)) {
             return;
         }
 
@@ -43,7 +37,7 @@ abstract class AbstractTypedCollection implements TypedCollectionInterface
     /**
      * @inheritDoc
      */
-    public static function create(string $type, ?array $items = null): TypedCollectionInterface
+    public static function create(TypeInterface|string $type, array $items = []): static
     {
         return new static($type, $items);
     }
@@ -51,15 +45,12 @@ abstract class AbstractTypedCollection implements TypedCollectionInterface
     /**
      * @codeCoverageIgnore
      */
-    public function getType(): string
+    public function getType(): TypeInterface|string
     {
         return $this->type;
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function contains($item): bool
+    public function contains(mixed $item): bool
     {
         return in_array($item, $this->items, true);
     }
@@ -67,7 +58,7 @@ abstract class AbstractTypedCollection implements TypedCollectionInterface
     /**
      * @inheritDoc
      */
-    public function at(int $index)
+    public function at(int $index): mixed
     {
         $this->validateIndex($index);
 
@@ -76,18 +67,16 @@ abstract class AbstractTypedCollection implements TypedCollectionInterface
 
     /**
      * @inheritDoc
+     * @throws Exception
      */
-    public function slice(int $offset, ?int $length = null): TypedCollectionInterface
+    public function slice(int $offset, ?int $length = null): static
     {
         $items = array_slice($this->items, $offset, $length);
 
         return new static($this->type, $items);
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function reduce(callable $callable, $initial = null)
+    public function reduce(callable $callable, mixed $initial = null): mixed
     {
         return array_reduce($this->items, $callable, $initial);
     }
@@ -108,20 +97,14 @@ abstract class AbstractTypedCollection implements TypedCollectionInterface
         return key($items);
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function first()
+    public function first(): mixed
     {
         $items = $this->items;
 
         return reset($items) ?: null;
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function last()
+    public function last(): mixed
     {
         $items = $this->items;
 
@@ -154,6 +137,14 @@ abstract class AbstractTypedCollection implements TypedCollectionInterface
     public function count(): int
     {
         return count($this->items);
+    }
+
+    /**
+     * @return array<int, mixed>
+     */
+    protected function getItems(): array
+    {
+        return $this->items;
     }
 
     /**

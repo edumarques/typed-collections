@@ -60,7 +60,7 @@ test: ## Run tests
 	@$(PHP) vendor/bin/phpunit ${args}
 
 test-cov: ## Run tests and generate coverage report
-	@$(DOCKER_COMP) exec php vendor/bin/phpunit --coverage-clover coverage/clover/clover.xml --coverage-html coverage/html
+	@$(DOCKER_COMP) exec -e XDEBUG_MODE=coverage php vendor/bin/phpunit --coverage-clover coverage/clover/clover.xml --coverage-html coverage/html
 
 ## 🧙 Composer
 composer: ## Run composer, pass the parameter "c=" to run a given command, example: make composer c='req symfony/orm-pack'

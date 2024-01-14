@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace EduardoMarques\TypedCollections;
 
+use EduardoMarques\TypedCollections\Enum\ScalarType;
+use EduardoMarques\TypedCollections\Enum\TypeInterface;
+use EduardoMarques\TypedCollections\Exception\Exception;
 use EduardoMarques\TypedCollections\Exception\InvalidArgumentException;
 
 /**
@@ -12,60 +15,47 @@ use EduardoMarques\TypedCollections\Exception\InvalidArgumentException;
 interface TypedDictionaryInterface extends \IteratorAggregate, \Countable
 {
     /**
-     * @param mixed[]|null $keyValueTuples
+     * @param TypeInterface|class-string|string $valueType
+     * @param array<int|string, mixed> $storage
      *
-     * @return static
-     * @throws InvalidArgumentException
+     * @throws Exception
      */
-    public static function create(string $keyType, string $valueType, ?array $keyValueTuples = null): self;
+    public static function create(
+        ScalarType $keyType,
+        TypeInterface|string $valueType,
+        array $storage = []
+    ): static;
 
-    public function getKeyType(): string;
+    public function getKeyType(): ScalarType;
 
-    public function getValueType(): string;
+    public function getValueType(): TypeInterface|string;
+
+    public function clear(): static;
 
     /**
-     * @return static
-     */
-    public function clear(): self;
-
-    /**
-     * @param int|string $key
-     *
      * @throws InvalidArgumentException
      */
-    public function hasKey($key): bool;
+    public function hasKey(int|string $key): bool;
 
     /**
-     * @param mixed $value
-     *
      * @throws InvalidArgumentException
      */
-    public function hasValue($value): bool;
+    public function hasValue(mixed $value): bool;
 
     /**
-     * @param int|string $key
-     *
-     * @return mixed
      * @throws InvalidArgumentException
      */
-    public function get($key);
+    public function get(int|string $key): mixed;
 
     /**
-     * @param int|string $key
-     * @param mixed $value
-     *
-     * @return static
      * @throws InvalidArgumentException
      */
-    public function set($key, $value): self;
+    public function set(int|string $key, mixed $value): static;
 
     /**
-     * @param int|string $key
-     *
-     * @return static
      * @throws InvalidArgumentException
      */
-    public function remove($key): self;
+    public function remove(int|string $key): static;
 
     /**
      * @return string[]|int[]
@@ -77,58 +67,28 @@ interface TypedDictionaryInterface extends \IteratorAggregate, \Countable
      */
     public function values(): array;
 
-    /**
-     * @return static
-     */
-    public function filter(callable $condition): self;
+    public function filter(callable $condition): static;
+
+    public function map(callable $callable): static;
 
     /**
-     * @return static
-     */
-    public function map(callable $callable): self;
-
-    /**
-     * @return static
      * @throws InvalidArgumentException
      */
-    public function merge(self $dictionary): self;
+    public function merge(self $dictionary): static;
 
-    /**
-     * @param mixed $initial
-     *
-     * @return mixed
-     */
-    public function reduce(callable $callable, $initial = null);
+    public function reduce(callable $callable, mixed $initial = null): mixed;
 
-    /**
-     * @return static
-     */
-    public function dropFirst(): self;
+    public function dropFirst(): static;
 
-    /**
-     * @return static
-     */
-    public function dropLast(): self;
+    public function dropLast(): static;
 
-    /**
-     * @return string|int|null
-     */
-    public function firstKey();
+    public function firstKey(): int|string|null;
 
-    /**
-     * @return string|int|null
-     */
-    public function lastKey();
+    public function lastKey(): int|string|null;
 
-    /**
-     * @return mixed
-     */
-    public function firstValue();
+    public function firstValue(): mixed;
 
-    /**
-     * @return mixed
-     */
-    public function lastValue();
+    public function lastValue(): mixed;
 
     public function toCollection(): TypedCollectionInterface;
 

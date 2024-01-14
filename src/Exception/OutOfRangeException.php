@@ -4,6 +4,6 @@ declare(strict_types=1);
 
 namespace EduardoMarques\TypedCollections\Exception;
 
-class OutOfRangeException extends \OutOfRangeException
+class OutOfRangeException extends Exception
 {
 }

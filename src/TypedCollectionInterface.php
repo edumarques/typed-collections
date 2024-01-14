@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace EduardoMarques\TypedCollections;
 
+use EduardoMarques\TypedCollections\Enum\TypeInterface;
+use EduardoMarques\TypedCollections\Exception\Exception;
 use EduardoMarques\TypedCollections\Exception\InvalidArgumentException;
 use EduardoMarques\TypedCollections\Exception\OutOfRangeException;
 
@@ -13,120 +15,70 @@ use EduardoMarques\TypedCollections\Exception\OutOfRangeException;
 interface TypedCollectionInterface extends \IteratorAggregate, \Countable
 {
     /**
-     * @param mixed[]|null $items
+     * @param TypeInterface|class-string|string $type
+     * @param array<int, mixed> $items
      *
-     * @return static
-     * @throws InvalidArgumentException
+     * @throws Exception
      */
-    public static function create(string $type, ?array $items = null): self;
+    public static function create(TypeInterface|string $type, array $items = []): static;
 
-    public function getType(): string;
+    public function getType(): TypeInterface|string;
+
+    public function clear(): static;
+
+    public function contains(mixed $item): bool;
+
+    public function add(mixed $item): static;
 
     /**
-     * @return static
-     */
-    public function clear(): self;
-
-    /**
-     * @param mixed $item
-     */
-    public function contains($item): bool;
-
-    /**
-     * @param mixed $item
-     *
-     * @return static
-     */
-    public function add($item): self;
-
-    /**
-     * @return mixed
      * @throws OutOfRangeException
      */
-    public function at(int $index);
+    public function at(int $index): mixed;
+
+    public function filter(callable $condition): static;
+
+    public function reverse(): static;
+
+    public function sort(callable $callback): static;
+
+    public function map(callable $callable): static;
+
+    public function shuffle(): static;
 
     /**
-     * @return static
-     */
-    public function filter(callable $condition): self;
-
-    /**
-     * @return static
-     */
-    public function reverse(): self;
-
-    /**
-     * @return static
-     */
-    public function sort(callable $callback): self;
-
-    /**
-     * @return static
-     */
-    public function map(callable $callable): self;
-
-    /**
-     * @return static
-     */
-    public function shuffle(): self;
-
-    /**
-     * @return static
      * @throws InvalidArgumentException
      */
-    public function merge(self $collection): self;
+    public function merge(self $collection): static;
 
     /**
-     * @return static
      * @throws InvalidArgumentException
      */
-    public function slice(int $offset, ?int $length = null): self;
+    public function slice(int $offset, ?int $length = null): static;
+
+    public function reduce(callable $callable, mixed $initial = null): mixed;
 
     /**
-     * @param mixed $initial
-     *
-     * @return mixed
-     */
-    public function reduce(callable $callable, $initial = null);
-
-    /**
-     * @param mixed $item
-     *
-     * @return static
      * @throws InvalidArgumentException
      * @throws OutOfRangeException
      */
-    public function insertAt(int $index, $item): self;
+    public function insertAt(int $index, mixed $item): static;
 
     /**
-     * @return static
      * @throws OutOfRangeException
      */
-    public function removeAt(int $index): self;
+    public function removeAt(int $index): static;
 
-    /**
-     * @return static
-     */
-    public function dropFirst(): self;
+    public function dropFirst(): static;
 
-    /**
-     * @return static
-     */
-    public function dropLast(): self;
+    public function dropLast(): static;
 
     public function firstIndex(): ?int;
 
     public function lastIndex(): ?int;
 
-    /**
-     * @return mixed
-     */
-    public function first();
+    public function first(): mixed;
 
-    /**
-     * @return mixed
-     */
-    public function last();
+    public function last(): mixed;
 
     /**
      * @return mixed[]

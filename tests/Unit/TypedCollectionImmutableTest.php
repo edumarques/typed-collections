@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace EduardoMarques\TypedCollections\Tests\Unit;
 
+use EduardoMarques\TypedCollections\Enum\NonScalarType;
+use EduardoMarques\TypedCollections\Enum\ScalarType;
+use EduardoMarques\TypedCollections\Exception\Exception;
 use EduardoMarques\TypedCollections\Exception\InvalidArgumentException;
 use EduardoMarques\TypedCollections\Exception\OutOfRangeException;
 use EduardoMarques\TypedCollections\TypedCollectionImmutable;
@@ -11,22 +14,31 @@ use PHPUnit\Framework\TestCase;
 
 final class TypedCollectionImmutableTest extends TestCase
 {
+    /**
+     * @throws Exception
+     */
     public function testCreateWithInvalidCallableItem(): void
     {
         self::expectException(InvalidArgumentException::class);
-        self::expectExceptionMessage('Value must be callable');
+        self::expectExceptionMessage('Value is not of type: CALLABLE');
 
-        TypedCollectionImmutable::create('callable', ['test']);
+        TypedCollectionImmutable::create(NonScalarType::CALLABLE, ['test']);
     }
 
+    /**
+     * @throws Exception
+     */
     public function testCreateWithInvalidObjectItem(): void
     {
         self::expectException(InvalidArgumentException::class);
-        self::expectExceptionMessage('Value is not type or subtype of Traversable');
+        self::expectExceptionMessage('Value is not of type: Traversable');
 
         TypedCollectionImmutable::create(\Traversable::class, [new \stdClass()]);
     }
 
+    /**
+     * @throws Exception
+     */
     public function testCreateWithInvalidNonObjectItem(): void
     {
         self::expectException(InvalidArgumentException::class);
@@ -35,6 +47,9 @@ final class TypedCollectionImmutableTest extends TestCase
         TypedCollectionImmutable::create(\stdClass::class, ['test']);
     }
 
+    /**
+     * @throws Exception
+     */
     public function testCreateWithInvalidNonTypeItem(): void
     {
         self::expectException(InvalidArgumentException::class);
@@ -43,6 +58,9 @@ final class TypedCollectionImmutableTest extends TestCase
         TypedCollectionImmutable::create('object');
     }
 
+    /**
+     * @throws Exception
+     */
     public function testContainsWhenItDoesNot(): void
     {
         $item1 = new \stdClass();
@@ -53,6 +71,9 @@ final class TypedCollectionImmutableTest extends TestCase
         self::assertFalse($collection->contains($item2));
     }
 
+    /**
+     * @throws Exception
+     */
     public function testContainsWhenItDoes(): void
     {
         $item1 = new \stdClass();
@@ -61,9 +82,12 @@ final class TypedCollectionImmutableTest extends TestCase
         self::assertTrue($collection->contains($item1));
     }
 
+    /**
+     * @throws Exception
+     */
     public function testAtWithInvalidIndex(): void
     {
-        $collection = TypedCollectionImmutable::create('integer');
+        $collection = TypedCollectionImmutable::create(ScalarType::INTEGER);
 
         self::expectException(OutOfRangeException::class);
         self::expectExceptionMessage('Index out of collection bounds');
@@ -71,14 +95,22 @@ final class TypedCollectionImmutableTest extends TestCase
         $collection->at(0);
     }
 
+    /**
+     * @throws Exception
+     * @throws OutOfRangeException
+     */
     public function testAtWithValidIndex(): void
     {
         $item1 = 'test';
-        $collection = TypedCollectionImmutable::create('string', [$item1]);
+        $collection = TypedCollectionImmutable::create(ScalarType::STRING, [$item1]);
 
         self::assertSame($item1, $collection->at(0));
     }
 
+    /**
+     * @throws InvalidArgumentException
+     * @throws Exception
+     */
     public function testSlice(): void
     {
         $item1 = 'test1';
@@ -86,13 +118,16 @@ final class TypedCollectionImmutableTest extends TestCase
         $item3 = 'test3';
         $item4 = 'test4';
 
-        $collection = TypedCollectionImmutable::create('string', [$item1, $item2, $item3, $item4]);
+        $collection = TypedCollectionImmutable::create(ScalarType::STRING, [$item1, $item2, $item3, $item4]);
 
-        $expected = TypedCollectionImmutable::create('string', [$item2, $item3]);
+        $expected = TypedCollectionImmutable::create(ScalarType::STRING, [$item2, $item3]);
 
         self::assertEquals($expected, $collection->slice(1, 2));
     }
 
+    /**
+     * @throws Exception
+     */
     public function testReduce(): void
     {
         $item1 = 1.5;
@@ -100,7 +135,7 @@ final class TypedCollectionImmutableTest extends TestCase
         $item3 = 3.0;
         $item4 = 45.5;
 
-        $collection = TypedCollectionImmutable::create('float', [$item1, $item2, $item3, $item4]);
+        $collection = TypedCollectionImmutable::create(ScalarType::DOUBLE, [$item1, $item2, $item3, $item4]);
 
         $actual = $collection->reduce(
             static function (float $carry, float $item): float {
@@ -112,6 +147,9 @@ final class TypedCollectionImmutableTest extends TestCase
         self::assertSame(61.0, $actual);
     }
 
+    /**
+     * @throws Exception
+     */
     public function testFirstIndex(): void
     {
         $item1 = 1.5;
@@ -119,18 +157,24 @@ final class TypedCollectionImmutableTest extends TestCase
         $item3 = 3.0;
         $item4 = 45.5;
 
-        $collection = TypedCollectionImmutable::create('float', [$item1, $item2, $item3, $item4]);
+        $collection = TypedCollectionImmutable::create(ScalarType::DOUBLE, [$item1, $item2, $item3, $item4]);
 
         self::assertSame(0, $collection->firstIndex());
     }
 
+    /**
+     * @throws Exception
+     */
     public function testFirstIndexWhenCollectionIsEmpty(): void
     {
-        $collection = TypedCollectionImmutable::create('float');
+        $collection = TypedCollectionImmutable::create(ScalarType::DOUBLE);
 
         self::assertNull($collection->firstIndex());
     }
 
+    /**
+     * @throws Exception
+     */
     public function testLastIndex(): void
     {
         $item1 = 1.5;
@@ -138,18 +182,24 @@ final class TypedCollectionImmutableTest extends TestCase
         $item3 = 3.0;
         $item4 = 45.5;
 
-        $collection = TypedCollectionImmutable::create('float', [$item1, $item2, $item3, $item4]);
+        $collection = TypedCollectionImmutable::create(ScalarType::DOUBLE, [$item1, $item2, $item3, $item4]);
 
         self::assertSame(3, $collection->lastIndex());
     }
 
+    /**
+     * @throws Exception
+     */
     public function testLastIndexWhenCollectionIsEmpty(): void
     {
-        $collection = TypedCollectionImmutable::create('float');
+        $collection = TypedCollectionImmutable::create(ScalarType::DOUBLE);
 
         self::assertNull($collection->lastIndex());
     }
 
+    /**
+     * @throws Exception
+     */
     public function testFirst(): void
     {
         $item1 = static function (): bool {
@@ -160,11 +210,14 @@ final class TypedCollectionImmutableTest extends TestCase
             return false;
         };
 
-        $collection = TypedCollectionImmutable::create('callable', [$item1, $item2]);
+        $collection = TypedCollectionImmutable::create(NonScalarType::CALLABLE, [$item1, $item2]);
 
         self::assertSame($item1, $collection->first());
     }
 
+    /**
+     * @throws Exception
+     */
     public function testLast(): void
     {
         $item1 = static function (): bool {
@@ -175,27 +228,33 @@ final class TypedCollectionImmutableTest extends TestCase
             return false;
         };
 
-        $collection = TypedCollectionImmutable::create('callable', [$item1, $item2]);
+        $collection = TypedCollectionImmutable::create(NonScalarType::CALLABLE, [$item1, $item2]);
 
         self::assertSame($item2, $collection->last());
     }
 
+    /**
+     * @throws Exception
+     */
     public function testCount(): void
     {
         $item1 = 1;
         $item2 = 2;
 
-        $collection = TypedCollectionImmutable::create('int', [$item1, $item2]);
+        $collection = TypedCollectionImmutable::create(ScalarType::INTEGER, [$item1, $item2]);
 
         self::assertSame(2, $collection->count());
     }
 
+    /**
+     * @throws Exception
+     */
     public function testClear(): void
     {
         $item1 = 1;
         $item2 = 2;
 
-        $collection = TypedCollectionImmutable::create('int', [$item1, $item2]);
+        $collection = TypedCollectionImmutable::create(ScalarType::INTEGER, [$item1, $item2]);
 
         $newCollection = $collection->clear();
 
@@ -203,25 +262,31 @@ final class TypedCollectionImmutableTest extends TestCase
         self::assertSame([], $newCollection->toArray());
     }
 
+    /**
+     * @throws Exception
+     */
     public function testAddWithInvalidItem(): void
     {
         $item1 = 1;
         $item2 = 2.0;
 
-        $collection = TypedCollectionImmutable::create('int', [$item1]);
+        $collection = TypedCollectionImmutable::create(ScalarType::INTEGER, [$item1]);
 
         self::expectException(InvalidArgumentException::class);
-        self::expectExceptionMessage('Value is not of type: integer');
+        self::expectExceptionMessage('Value is not of type: INTEGER');
 
         $collection->add($item2);
     }
 
+    /**
+     * @throws Exception
+     */
     public function testAddWithValidItem(): void
     {
         $item1 = 1;
         $item2 = 2;
 
-        $collection = TypedCollectionImmutable::create('int', [$item1]);
+        $collection = TypedCollectionImmutable::create(ScalarType::INTEGER, [$item1]);
 
         $newCollection = $collection->add($item2);
 
@@ -229,13 +294,16 @@ final class TypedCollectionImmutableTest extends TestCase
         self::assertSame([$item1, $item2], $newCollection->toArray());
     }
 
+    /**
+     * @throws Exception
+     */
     public function testFilter(): void
     {
         $item1 = 1;
         $item2 = 2;
         $item3 = 3;
 
-        $collection = TypedCollectionImmutable::create('int', [$item1, $item2, $item3]);
+        $collection = TypedCollectionImmutable::create(ScalarType::INTEGER, [$item1, $item2, $item3]);
 
         $newCollection = $collection->filter(
             static function (int $item): bool {
@@ -247,13 +315,16 @@ final class TypedCollectionImmutableTest extends TestCase
         self::assertSame([$item2], $newCollection->toArray());
     }
 
+    /**
+     * @throws Exception
+     */
     public function testReverse(): void
     {
         $item1 = 1;
         $item2 = 2;
         $item3 = 3;
 
-        $collection = TypedCollectionImmutable::create('int', [$item1, $item2, $item3]);
+        $collection = TypedCollectionImmutable::create(ScalarType::INTEGER, [$item1, $item2, $item3]);
 
         $newCollection = $collection->reverse();
 
@@ -261,13 +332,16 @@ final class TypedCollectionImmutableTest extends TestCase
         self::assertSame([$item3, $item2, $item1], $newCollection->toArray());
     }
 
+    /**
+     * @throws Exception
+     */
     public function testSort(): void
     {
         $item1 = 1;
         $item2 = 2;
         $item3 = 3;
 
-        $collection = TypedCollectionImmutable::create('int', [$item1, $item3, $item2]);
+        $collection = TypedCollectionImmutable::create(ScalarType::INTEGER, [$item1, $item3, $item2]);
 
         $newCollection = $collection->sort(
             static function (int $itemA, int $itemB): int {
@@ -279,13 +353,16 @@ final class TypedCollectionImmutableTest extends TestCase
         self::assertSame([$item3, $item2, $item1], $newCollection->toArray());
     }
 
+    /**
+     * @throws Exception
+     */
     public function testMap(): void
     {
         $item1 = 1;
         $item2 = 2;
         $item3 = 3;
 
-        $collection = TypedCollectionImmutable::create('int', [$item1, $item2, $item3]);
+        $collection = TypedCollectionImmutable::create(ScalarType::INTEGER, [$item1, $item2, $item3]);
 
         $newCollection = $collection->map(
             static function (int $item): string {
@@ -297,13 +374,16 @@ final class TypedCollectionImmutableTest extends TestCase
         self::assertSame(['item1', 'item2', 'item3'], $newCollection->toArray());
     }
 
+    /**
+     * @throws Exception
+     */
     public function testMapReturningObjectCollection(): void
     {
         $item1 = 1;
         $item2 = 2;
         $item3 = 3;
 
-        $collection = TypedCollectionImmutable::create('int', [$item1, $item2, $item3]);
+        $collection = TypedCollectionImmutable::create(ScalarType::INTEGER, [$item1, $item2, $item3]);
 
         $newCollection = $collection->map(
             static function (int $item): \stdClass {
@@ -324,13 +404,16 @@ final class TypedCollectionImmutableTest extends TestCase
         self::assertEquals([$mappedItem1, $mappedItem2, $mappedItem3], $newCollection->toArray());
     }
 
+    /**
+     * @throws Exception
+     */
     public function testShuffle(): void
     {
         $item1 = 1;
         $item2 = 2;
         $item3 = 3;
 
-        $collection = TypedCollectionImmutable::create('int', [$item1, $item2, $item3]);
+        $collection = TypedCollectionImmutable::create(ScalarType::INTEGER, [$item1, $item2, $item3]);
 
         $newCollection = $collection->shuffle();
 
@@ -341,14 +424,17 @@ final class TypedCollectionImmutableTest extends TestCase
         self::assertTrue($newCollection->contains($item3));
     }
 
+    /**
+     * @throws Exception
+     */
     public function testMerge(): void
     {
         $item1 = 1;
         $item2 = 2;
         $item3 = 3;
 
-        $collection1 = TypedCollectionImmutable::create('int', [$item1]);
-        $collection2 = TypedCollectionImmutable::create('int', [$item2, $item3]);
+        $collection1 = TypedCollectionImmutable::create(ScalarType::INTEGER, [$item1]);
+        $collection2 = TypedCollectionImmutable::create(ScalarType::INTEGER, [$item2, $item3]);
 
         $newCollection = $collection1->merge($collection2);
 
@@ -357,21 +443,27 @@ final class TypedCollectionImmutableTest extends TestCase
         self::assertSame([$item1, $item2, $item3], $newCollection->toArray());
     }
 
+    /**
+     * @throws Exception
+     */
     public function testMergeWithInvalidValues(): void
     {
         $item1 = 1;
         $item2 = '2';
         $item3 = '3';
 
-        $collection1 = TypedCollectionImmutable::create('int', [$item1]);
-        $collection2 = TypedCollectionImmutable::create('string', [$item2, $item3]);
+        $collection1 = TypedCollectionImmutable::create(ScalarType::INTEGER, [$item1]);
+        $collection2 = TypedCollectionImmutable::create(ScalarType::STRING, [$item2, $item3]);
 
         self::expectException(InvalidArgumentException::class);
-        self::expectExceptionMessage('Value is not of type: integer');
+        self::expectExceptionMessage('Value is not of type: INTEGER');
 
         $collection1->merge($collection2);
     }
 
+    /**
+     * @throws Exception
+     */
     public function testInsertAtWithInvalidIndex(): void
     {
         $item1 = 1;
@@ -379,7 +471,7 @@ final class TypedCollectionImmutableTest extends TestCase
         $item3 = 3;
         $item4 = 4;
 
-        $collection = TypedCollectionImmutable::create('int', [$item1, $item2, $item3]);
+        $collection = TypedCollectionImmutable::create(ScalarType::INTEGER, [$item1, $item2, $item3]);
 
         self::expectException(OutOfRangeException::class);
         self::expectExceptionMessage('Index out of collection bounds');
@@ -387,20 +479,26 @@ final class TypedCollectionImmutableTest extends TestCase
         $collection->insertAt(3, $item4);
     }
 
+    /**
+     * @throws Exception
+     */
     public function testInsertAtWithInvalidItem(): void
     {
         $item1 = 1;
         $item2 = 2;
         $item3 = 3;
 
-        $collection = TypedCollectionImmutable::create('int', [$item1, $item2, $item3]);
+        $collection = TypedCollectionImmutable::create(ScalarType::INTEGER, [$item1, $item2, $item3]);
 
         self::expectException(InvalidArgumentException::class);
-        self::expectExceptionMessage('Value is not of type: integer');
+        self::expectExceptionMessage('Value is not of type: INTEGER');
 
         $collection->insertAt(2, 1.0);
     }
 
+    /**
+     * @throws Exception
+     */
     public function testInsertAt(): void
     {
         $item0 = 0;
@@ -408,7 +506,7 @@ final class TypedCollectionImmutableTest extends TestCase
         $item2 = 2;
         $item3 = 3;
 
-        $collection = TypedCollectionImmutable::create('int', [$item1, $item2, $item3]);
+        $collection = TypedCollectionImmutable::create(ScalarType::INTEGER, [$item1, $item2, $item3]);
 
         $newCollection = $collection->insertAt(0, $item0);
 
@@ -416,13 +514,16 @@ final class TypedCollectionImmutableTest extends TestCase
         self::assertSame([$item0, $item1, $item2, $item3], $newCollection->toArray());
     }
 
+    /**
+     * @throws Exception
+     */
     public function testRemoveAtWithInvalidIndex(): void
     {
         $item1 = 1;
         $item2 = 2;
         $item3 = 3;
 
-        $collection = TypedCollectionImmutable::create('int', [$item1, $item2, $item3]);
+        $collection = TypedCollectionImmutable::create(ScalarType::INTEGER, [$item1, $item2, $item3]);
 
         self::expectException(OutOfRangeException::class);
         self::expectExceptionMessage('Index out of collection bounds');
@@ -430,13 +531,16 @@ final class TypedCollectionImmutableTest extends TestCase
         $collection->removeAt(3);
     }
 
+    /**
+     * @throws Exception
+     */
     public function testRemoveAt(): void
     {
         $item1 = 1;
         $item2 = 2;
         $item3 = 3;
 
-        $collection = TypedCollectionImmutable::create('int', [$item1, $item2, $item3]);
+        $collection = TypedCollectionImmutable::create(ScalarType::INTEGER, [$item1, $item2, $item3]);
 
         $newCollection = $collection->removeAt(1);
 
@@ -444,13 +548,16 @@ final class TypedCollectionImmutableTest extends TestCase
         self::assertSame([$item1, $item3], $newCollection->toArray());
     }
 
+    /**
+     * @throws Exception
+     */
     public function testDropFirst(): void
     {
         $item1 = 1;
         $item2 = 2;
         $item3 = 3;
 
-        $collection = TypedCollectionImmutable::create('int', [$item1, $item2, $item3]);
+        $collection = TypedCollectionImmutable::create(ScalarType::INTEGER, [$item1, $item2, $item3]);
 
         $newCollection = $collection->dropFirst();
 
@@ -458,13 +565,16 @@ final class TypedCollectionImmutableTest extends TestCase
         self::assertSame([$item2, $item3], $newCollection->toArray());
     }
 
+    /**
+     * @throws Exception
+     */
     public function testDropLast(): void
     {
         $item1 = 1;
         $item2 = 2;
         $item3 = 3;
 
-        $collection = TypedCollectionImmutable::create('int', [$item1, $item2, $item3]);
+        $collection = TypedCollectionImmutable::create(ScalarType::INTEGER, [$item1, $item2, $item3]);
 
         $newCollection = $collection->dropLast();
 

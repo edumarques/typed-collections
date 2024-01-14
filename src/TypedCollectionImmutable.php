@@ -4,175 +4,176 @@ declare(strict_types=1);
 
 namespace EduardoMarques\TypedCollections;
 
+use EduardoMarques\TypedCollections\Exception\Exception;
+
 class TypedCollectionImmutable extends AbstractTypedCollection implements
     TypedCollectionInterface,
     TypedCollectionImmutableInterface
 {
     /**
-     * @inheritDoc
      * @codeCoverageIgnore
+     * @throws Exception
      */
-    public static function createFromMutable(TypedCollection $collection): TypedCollectionImmutableInterface
+    public static function createFromMutable(TypedCollection $collection): static
     {
-        return new static($collection->getType(), $collection->toArray());
+        return new static($collection->getType(), $collection->getItems());
     }
 
     /**
-     * @inheritDoc
+     * @throws Exception
      */
-    public function clear(): TypedCollectionInterface
+    public function clear(): static
     {
-        return new static($this->type);
+        return new static($this->getType());
     }
 
     /**
-     * @inheritDoc
+     * @throws Exception
      */
-    public function add($item): TypedCollectionInterface
+    public function add(mixed $item): static
     {
         $this->validateValue($item);
 
-        $items = $this->items;
+        $items = $this->getItems();
         $items[] = $item;
 
-        return new static($this->type, $items);
+        return new static($this->getType(), $items);
     }
 
     /**
-     * @inheritDoc
+     * @throws Exception
      */
-    public function filter(callable $condition): TypedCollectionInterface
+    public function filter(callable $condition): static
     {
         $items = [];
 
-        foreach ($this->items as $item) {
+        foreach ($this->getItems() as $item) {
             if ($condition($item)) {
                 $items[] = $item;
             }
         }
 
-        return new static($this->type, $items);
+        return new static($this->getType(), $items);
     }
 
     /**
-     * @inheritdoc
+     * @throws Exception
      */
-    public function reverse(): TypedCollectionInterface
+    public function reverse(): static
     {
-        $items = array_reverse($this->items);
+        $items = array_reverse($this->getItems());
 
-        return new static($this->type, $items);
+        return new static($this->getType(), $items);
     }
 
     /**
-     * @inheritdoc
+     * @throws Exception
      */
-    public function sort(callable $callback): TypedCollectionInterface
+    public function sort(callable $callback): static
     {
-        $items = $this->items;
+        $items = $this->getItems();
 
         usort($items, $callback);
 
-        return new static($this->type, $items);
+        return new static($this->getType(), $items);
     }
 
     /**
-     * @inheritdoc
+     * @throws Exception
      */
-    public function map(callable $callable): TypedCollectionInterface
+    public function map(callable $callable): static
     {
         $items = [];
-        $type = null;
 
-        foreach ($this->items as $item) {
+        foreach ($this->getItems() as $item) {
             $result = $callable($item);
             $items[] = $result;
-
-            if ($type === null) {
-                $type = gettype($result);
-                $type = $type === 'object' ? get_class($result) : $type;
-            }
         }
 
-        return new static($type ?? $this->type, $items);
+        $type = false === empty($items) ? TypeMapper::getType($items[0]) : $this->getType();
+
+        return new static($type, $items);
     }
 
     /**
-     * @inheritDoc
+     * @throws Exception
      */
-    public function shuffle(): TypedCollectionInterface
+    public function shuffle(): static
     {
-        $items = $this->items;
+        $items = $this->getItems();
         shuffle($items);
 
-        return new static($this->type, $items);
+        return new static($this->getType(), $items);
     }
 
     /**
-     * @inheritDoc
+     * @throws Exception
      */
-    public function merge(TypedCollectionInterface $collection): TypedCollectionInterface
+    public function merge(TypedCollectionInterface $collection): static
     {
-        $items = $collection->toArray();
+        /** @phpstan-ignore-next-line */
+        $items = $collection->getItems();
 
         $this->validateValues($items);
 
-        $newItems = array_merge($this->items, $items);
+        $newItems = array_merge($this->getItems(), $items);
 
-        return new static($this->type, $newItems);
+        return new static($this->getType(), $newItems);
     }
 
     /**
-     * @inheritDoc
+     * @throws Exception
      */
-    public function insertAt(int $index, $item): TypedCollectionInterface
+    public function insertAt(int $index, mixed $item): static
     {
         $this->validateIndex($index);
         $this->validateValue($item);
 
-        $partA = array_slice($this->items, 0, $index);
-        $partB = array_slice($this->items, $index, count($this->items));
+        $items = $this->getItems();
+
+        $partA = array_slice($items, 0, $index);
+        $partB = array_slice($items, $index, count($items));
         $partA[] = $item;
 
         $items = array_merge($partA, $partB);
 
-        return new static($this->type, $items);
+        return new static($this->getType(), $items);
     }
 
     /**
-     * @inheritDoc
+     * @throws Exception
      */
-    public function removeAt(int $index): TypedCollectionInterface
+    public function removeAt(int $index): static
     {
         $this->validateIndex($index);
-        $items = $this->items;
+        $items = $this->getItems();
 
         $partA = array_slice($items, 0, $index);
         $partB = array_slice($items, $index + 1, count($items));
         $items = array_merge($partA, $partB);
 
-        return new static($this->type, $items);
+        return new static($this->getType(), $items);
     }
 
     /**
-     * @inheritDoc
+     * @throws Exception
      */
-    public function dropFirst(): TypedCollectionInterface
+    public function dropFirst(): static
     {
-        $items = $this->items;
+        $items = $this->getItems();
         array_shift($items);
 
-        return new static($this->type, $items);
+        return new static($this->getType(), $items);
     }
 
     /**
-     * @inheritDoc
+     * @throws Exception
      */
-    public function dropLast(): TypedCollectionInterface
+    public function dropLast(): static
     {
-        $items = $this->items;
+        $items = $this->getItems();
         array_pop($items);
 
-        return new static($this->type, $items);
+        return new static($this->getType(), $items);
     }
 }

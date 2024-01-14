@@ -4,23 +4,23 @@ declare(strict_types=1);
 
 namespace EduardoMarques\TypedCollections;
 
+use EduardoMarques\TypedCollections\Exception\Exception;
+use EduardoMarques\TypedCollections\Exception\InvalidArgumentException;
+
 class TypedCollection extends AbstractTypedCollection implements
     TypedCollectionInterface,
     TypedCollectionMutableInterface
 {
     /**
-     * @inheritDoc
      * @codeCoverageIgnore
+     * @throws Exception
      */
-    public static function createFromImmutable(TypedCollectionImmutable $collection): TypedCollectionMutableInterface
+    public static function createFromImmutable(TypedCollectionImmutable $collection): static
     {
-        return new static($collection->getType(), $collection->toArray());
+        return new static($collection->getType(), $collection->getItems());
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function clear(): TypedCollectionInterface
+    public function clear(): static
     {
         $this->items = [];
 
@@ -28,9 +28,9 @@ class TypedCollection extends AbstractTypedCollection implements
     }
 
     /**
-     * @inheritDoc
+     * @throws Exception
      */
-    public function add($item): TypedCollectionInterface
+    public function add(mixed $item): static
     {
         $this->validateValue($item);
 
@@ -39,14 +39,11 @@ class TypedCollection extends AbstractTypedCollection implements
         return $this;
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function filter(callable $condition): TypedCollectionInterface
+    public function filter(callable $condition): static
     {
         $items = [];
 
-        foreach ($this->items as $item) {
+        foreach ($this->getItems() as $item) {
             if ($condition($item)) {
                 $items[] = $item;
             }
@@ -57,20 +54,14 @@ class TypedCollection extends AbstractTypedCollection implements
         return $this;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function reverse(): TypedCollectionInterface
+    public function reverse(): static
     {
-        $this->items = array_reverse($this->items);
+        $this->items = array_reverse($this->getItems());
 
         return $this;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function sort(callable $callback): TypedCollectionInterface
+    public function sort(callable $callback): static
     {
         usort($this->items, $callback);
 
@@ -78,33 +69,24 @@ class TypedCollection extends AbstractTypedCollection implements
     }
 
     /**
-     * @inheritdoc
+     * @throws InvalidArgumentException
      */
-    public function map(callable $callable): TypedCollectionInterface
+    public function map(callable $callable): static
     {
         $items = [];
-        $type = null;
 
-        foreach ($this->items as $item) {
+        foreach ($this->getItems() as $item) {
             $result = $callable($item);
             $items[] = $result;
-
-            if ($type === null) {
-                $type = gettype($result);
-                $type = $type === 'object' ? get_class($result) : $type;
-            }
         }
 
-        $this->type = $type ?? $this->type;
+        $this->type = false === empty($items) ? TypeMapper::getType($items[0]) : $this->type;
         $this->items = $items;
 
         return $this;
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function shuffle(): TypedCollectionInterface
+    public function shuffle(): static
     {
         shuffle($this->items);
 
@@ -113,10 +95,12 @@ class TypedCollection extends AbstractTypedCollection implements
 
     /**
      * @inheritDoc
+     * @throws Exception
      */
-    public function merge(TypedCollectionInterface $collection): TypedCollectionInterface
+    public function merge(TypedCollectionInterface $collection): static
     {
-        $items = $collection->toArray();
+        /** @phpstan-ignore-next-line */
+        $items = $collection->getItems();
 
         $this->validateValues($items);
 
@@ -127,14 +111,17 @@ class TypedCollection extends AbstractTypedCollection implements
 
     /**
      * @inheritDoc
+     * @throws Exception
      */
-    public function insertAt(int $index, $item): TypedCollectionInterface
+    public function insertAt(int $index, mixed $item): static
     {
         $this->validateIndex($index);
         $this->validateValue($item);
 
-        $partA = array_slice($this->items, 0, $index);
-        $partB = array_slice($this->items, $index, count($this->items));
+        $items = $this->getItems();
+
+        $partA = array_slice($items, 0, $index);
+        $partB = array_slice($items, $index, count($items));
         $partA[] = $item;
 
         $this->items = array_merge($partA, $partB);
@@ -145,10 +132,10 @@ class TypedCollection extends AbstractTypedCollection implements
     /**
      * @inheritDoc
      */
-    public function removeAt(int $index): TypedCollectionInterface
+    public function removeAt(int $index): static
     {
         $this->validateIndex($index);
-        $items = $this->items;
+        $items = $this->getItems();
 
         $partA = array_slice($items, 0, $index);
         $partB = array_slice($items, $index + 1, count($items));
@@ -157,20 +144,14 @@ class TypedCollection extends AbstractTypedCollection implements
         return $this;
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function dropFirst(): TypedCollectionInterface
+    public function dropFirst(): static
     {
         array_shift($this->items);
 
         return $this;
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function dropLast(): TypedCollectionInterface
+    public function dropLast(): static
     {
         array_pop($this->items);
 

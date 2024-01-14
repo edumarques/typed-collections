@@ -6,8 +6,5 @@ namespace EduardoMarques\TypedCollections;
 
 interface TypedCollectionImmutableInterface
 {
-    /**
-     * @return static
-     */
-    public static function createFromMutable(TypedCollection $collection): self;
+    public static function createFromMutable(TypedCollection $collection): static;
 }
