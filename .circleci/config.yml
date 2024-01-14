@@ -16,7 +16,7 @@ jobs:
                     key: v1-dependencies-{{ checksum "composer.lock" }}
                     paths:
                         - ./vendor
-            -   run: ./vendor/bin/phpunit
+            -   run: sudo pecl install xdebug && sudo docker-php-ext-enable xdebug
             -   run: XDEBUG_MODE=coverage ./vendor/bin/phpunit --coverage-clover coverage/clover/clover.xml --coverage-html coverage/html
             -   run: curl -Os https://uploader.codecov.io/latest/linux/codecov
             -   run: sudo chmod +x codecov
