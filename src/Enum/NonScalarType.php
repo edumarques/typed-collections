@@ -10,7 +10,6 @@ enum NonScalarType implements TypeInterface
 {
     case CALLABLE;
     case ARRAY;
-    case OBJECT;
 
     #[\Override]
     public static function getFromPrimitiveType(string $type): self
